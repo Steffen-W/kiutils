@@ -272,7 +272,7 @@ class Symbol():
             self.unitId = None
             self.styleId = None
         else:
-            parse_symbol_id = re.match(r"^(.+?)_(\d+?)_(\d+?)$", symbol_id)
+            parse_symbol_id = re.match(r"^(.+?)_(\d{1,2})_(\d{1,2})$", symbol_id) # Fix parsing of symbol IDs with multiple underscores and numbers
             if parse_symbol_id:
                 # The symbol is a child symbol
                 self.libraryNickname = None
@@ -337,6 +337,14 @@ class Symbol():
     # TODO: Describe this token
     isPower: bool = False           # Missing in documentation, added when "Als Spannungssymbol" is checked
     """The ``isPower`` token's documentation was not done yet .."""
+    
+    excludeFromSim: Optional[bool] = None
+    """The optional ``exclude_from_sim`` token defines if the symbol should be excluded from simulation.
+    If undefined, the token will not be generated in `self.to_sexpr()`."""
+    
+    embeddedFonts: Optional[bool] = None
+    """The optional ``embedded_fonts`` token defines if fonts are embedded.
+    If undefined, the token will not be generated in `self.to_sexpr()`."""
 
     properties: List[Property] = field(default_factory=list)
     """The ``properties`` is a list of properties that define the symbol. The following properties are
@@ -354,6 +362,23 @@ class Symbol():
 
     units: List[Symbol] = field(default_factory=list)
     """The ``units`` can be one or more child symbol tokens embedded in a parent symbol"""
+
+    @staticmethod
+    def _parse_hide_property(properties):
+        """Parse hide property from both v7 and v9 formats
+        Args:
+            properties: List of properties from pin_names, pin_numbers, etc.
+        Returns:
+            bool: True if hide is enabled, False otherwise
+        """
+        for prop in properties:
+            if isinstance(prop, list) and prop[0] == 'hide':
+                # v9 format: (hide yes) or (hide no)
+                return prop[1] == 'yes' if len(prop) > 1 else True
+            elif prop == 'hide':
+                # v7 format: hide
+                return True
+        return False
 
     @classmethod
     def from_sexpr(cls, exp: list) -> Symbol:
@@ -379,19 +404,19 @@ class Symbol():
         object.libId = exp[1]
         for item in exp[2:]:
             if item[0] == 'extends': object.extends = item[1]
-            if item[0] == 'pin_numbers':
-                if item[1] == 'hide':
-                    object.hidePinNumbers = True
-            if item[0] == 'pin_names':
+            if item[0] == 'pin_numbers': object.hidePinNumbers = cls._parse_hide_property(item[1:])
+            if item[0] == 'pin_names': 
                 object.pinNames = True
+                object.pinNamesHide = cls._parse_hide_property(item[1:])
+                # Handle other pin_names properties
                 for property in item[1:]:
-                    if type(property) == type([]):
-                        if property[0] == 'offset': object.pinNamesOffset = property[1]
-                    else:
-                        if property == 'hide': object.pinNamesHide = True
+                    if isinstance(property, list) and property[0] == 'offset':
+                        object.pinNamesOffset = property[1]
             if item[0] == 'in_bom': object.inBom = True if item[1] == 'yes' else False
             if item[0] == 'on_board': object.onBoard = True if item[1] == 'yes' else False
             if item[0] == 'power': object.isPower = True
+            if item[0] == 'exclude_from_sim': object.excludeFromSim = item[1] == 'yes'  # Note: "no" means False, "yes" means True
+            if item[0] == 'embedded_fonts': object.embeddedFonts = item[1] == 'yes'
 
             if item[0] == 'symbol': object.units.append(Symbol().from_sexpr(item))
             if item[0] == 'property': object.properties.append(Property().from_sexpr(item))
@@ -461,13 +486,15 @@ class Symbol():
             obtext = 'yes' if self.onBoard else 'no'
         onboard = f' (on_board {obtext})' if self.onBoard is not None else ''
         power = f' (power)' if self.isPower else ''
+        exclude_sim = f' (exclude_from_sim {"no" if self.excludeFromSim == False else "yes"})' if self.excludeFromSim is not None else ''
+        embeddedFonts = f' (embedded_fonts {"no" if self.embeddedFonts == False else "yes"})' if self.embeddedFonts is not None else ''
         pnhide = f' hide' if self.pinNamesHide else ''
         pnoffset = f' (offset {self.pinNamesOffset})' if self.pinNamesOffset is not None else ''
         pinnames = f' (pin_names{pnoffset}{pnhide})' if self.pinNames else ''
         pinnumbers = f' (pin_numbers hide)' if self.hidePinNumbers else ''
         extends = f' (extends "{dequote(self.extends)}")' if self.extends is not None else ''
 
-        expression =  f'{indents}(symbol "{dequote(self.libId)}"{extends}{power}{pinnumbers}{pinnames}{inbom}{onboard}\n'
+        expression =  f'{indents}(symbol "{dequote(self.libId)}"{extends}{power}{exclude_sim}{pinnumbers}{pinnames}{inbom}{onboard}{embeddedFonts}\n'
         for item in self.properties:
             expression += item.to_sexpr(indent+2)
         for item in self.graphicItems:
@@ -547,7 +574,7 @@ class SymbolLib():
         object = cls()
 
         for item in exp[1:]:
-            if item[0] == 'version': object.version = item[1]
+            if item[0] == 'version': object.version = str(item[1])
             if item[0] == 'generator': object.generator = item[1]
             if item[0] == 'symbol': object.symbols.append(Symbol().from_sexpr(item))
         return object

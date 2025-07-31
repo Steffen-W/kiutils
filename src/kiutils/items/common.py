@@ -485,6 +485,9 @@ class Effects():
             if item[0] == 'font': object.font = Font().from_sexpr(item)
             if item[0] == 'justify': object.justify = Justify().from_sexpr(item)
             if item[0] == 'href': object.href = item[1]
+            if item[0] == 'hide': 
+                # v9 format: (hide yes) or (hide no)
+                object.hide = item[1] == 'yes' if len(item) > 1 else True
         return object
 
     def to_sexpr(self, indent=0, newline=True) -> str:

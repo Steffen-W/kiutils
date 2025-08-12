@@ -1,5 +1,17 @@
 # kiutils - CHANGELOG
 
+## v1.4.9 - 12.08.2025
+### Non-breaking changes
+- Added: Comprehensive \_\_init\_\_.py files for improved package structure and API accessibility
+- Added: Main package \_\_init\_\_.py now exports commonly used classes and utilities for easier imports
+- Added: Items subpackage \_\_init\_\_.py for organized access to all item classes by file type
+- Added: Utils subpackage \_\_init\_\_.py for centralized utility function access
+- Added: Misc subpackage \_\_init\_\_.py for configuration constants access
+- Enhanced: Package metadata with complete author information and project URLs
+- Enhanced: Controlled import system with \_\_all\_\_ definitions for cleaner namespace management
+- Enhanced: Documentation strings for all \_\_init\_\_.py files explaining package structure and usage
+- Fixed: Hide property parsing for KiCad old and new formats in Effects class. Add excludeFromSim and embeddedFonts
+
 ## v1.4.8 - 03.02.2024
 
 ### Non-breaking changes

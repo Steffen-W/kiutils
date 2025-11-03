@@ -18,13 +18,14 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 from kiutils.items.common import Effects, Position, RenderCache, Stroke
 from kiutils.utils.strings import dequote
 
+
 @dataclass
-class GrText():
+class GrText:
     """The ``gr_text`` token defines a graphical text.
 
     Documentation:
@@ -48,7 +49,7 @@ class GrText():
     effects: Effects = field(default_factory=lambda: Effects())
     """The ``effects`` token defines how the text is displayed"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the text object"""
 
     locked: bool = False
@@ -77,24 +78,29 @@ class GrText():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_text':
+        if exp[0] != "gr_text":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.text = exp[1]
         for item in exp[2:]:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'layer': 
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "layer":
                 object.layer = item[1]
-                if(len(item) > 2):
-                    if(item[2] == "knockout"):
+                if len(item) > 2:
+                    if item[2] == "knockout":
                         object.knockout = True
-            if item[0] == 'effects': object.effects = Effects().from_sexpr(item)
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'render_cache': object.renderCache = RenderCache.from_sexpr(item)
+            if item[0] == "effects":
+                object.effects = Effects().from_sexpr(item)
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "render_cache":
+                object.renderCache = RenderCache.from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 2, newline: bool = True) -> str:
@@ -107,28 +113,31 @@ class GrText():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        ko = ' knockout' if self.knockout else ''
-        posA = f' {self.position.angle}' if self.position.angle is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}"{ko})' if self.layer is not None else ''
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        locked = f' locked' if self.locked else ''
+        ko = " knockout" if self.knockout else ""
+        posA = f" {self.position.angle}" if self.position.angle is not None else ""
+        layer = (
+            f' (layer "{dequote(self.layer)}"{ko})' if self.layer is not None else ""
+        )
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        locked = f" locked" if self.locked else ""
 
-        expression =  f'{indents}(gr_text{locked} "{dequote(self.text)}" (at {self.position.X} {self.position.Y}{posA}){layer}{tstamp}\n'
-        expression += f'{indents}  {self.effects.to_sexpr()}'
+        expression = f'{indents}(gr_text{locked} "{dequote(self.text)}" (at {self.position.X} {self.position.Y}{posA}){layer}{tstamp}\n'
+        expression += f"{indents}  {self.effects.to_sexpr()}"
         if self.renderCache is not None:
-            expression += self.renderCache.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression += self.renderCache.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class GrTextBox():
+class GrTextBox:
     """The ``gr_text_box`` token defines a graphical rectangle containing line-wrapped text.
 
     Available since KiCad v7
-    
+
     Documentation:
         https://dev-docs.kicad.org/en/file-formats/sexpr-intro/index.html#_graphical_text_box
     """
@@ -196,7 +205,7 @@ class GrTextBox():
         if not isinstance(exp, list) or len(exp) < 2:
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_text_box':
+        if exp[0] != "gr_text_box":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -211,17 +220,25 @@ class GrTextBox():
             start_at = 2
 
         for item in exp[start_at:]:
-            if item[0] == 'start': object.start = Position.from_sexpr(item)
-            if item[0] == 'end': object.end = Position.from_sexpr(item)
-            if item[0] == 'pts':
+            if item[0] == "start":
+                object.start = Position.from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position.from_sexpr(item)
+            if item[0] == "pts":
                 for point in item[1:]:
                     object.pts.append(Position().from_sexpr(point))
-            if item[0] == 'angle': object.angle = item[1]
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'effects': object.effects = Effects.from_sexpr(item)
-            if item[0] == 'stroke': object.stroke = Stroke.from_sexpr(item)
-            if item[0] == 'render_cache': object.renderCache = RenderCache.from_sexpr(item)
+            if item[0] == "angle":
+                object.angle = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "effects":
+                object.effects = Effects.from_sexpr(item)
+            if item[0] == "stroke":
+                object.stroke = Stroke.from_sexpr(item)
+            if item[0] == "render_cache":
+                object.renderCache = RenderCache.from_sexpr(item)
 
         return object
 
@@ -243,37 +260,46 @@ class GrTextBox():
         """
         if self.angle is not None and self.angle not in [0.0, 90.0, 180.0, 270.0]:
             if len(self.pts) != 4:
-                raise Exception("None-cardinal angles must have exactly four corner points defined")
+                raise Exception(
+                    "None-cardinal angles must have exactly four corner points defined"
+                )
         if self.angle is None or self.angle in [0.0, 90.0, 180.0, 270.0]:
             if self.start is None or self.end is None:
-                raise Exception("No angle or a cardinal angle needs a start and end token defined")
+                raise Exception(
+                    "No angle or a cardinal angle needs a start and end token defined"
+                )
 
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        angle = f'(angle {self.angle}) ' if self.angle is not None else ''
-        start = f'(start {self.start.X} {self.start.Y}) ' if self.start is not None else ''
-        end = f'(end {self.end.X} {self.end.Y}) ' if self.end is not None else ''
-        locked = ' locked' if self.locked else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        angle = f"(angle {self.angle}) " if self.angle is not None else ""
+        start = (
+            f"(start {self.start.X} {self.start.Y}) " if self.start is not None else ""
+        )
+        end = f"(end {self.end.X} {self.end.Y}) " if self.end is not None else ""
+        locked = " locked" if self.locked else ""
 
         expression = f'{indents}(gr_text_box{locked} "{dequote(self.text)}"\n'
         if len(self.pts) == 4:
-            expression += f'{indents}  (pts\n'
-            expression += f'{indents}    (xy {self.pts[0].X} {self.pts[0].Y})        (xy {self.pts[1].X} {self.pts[1].Y})        (xy {self.pts[2].X} {self.pts[2].Y})        (xy {self.pts[3].X} {self.pts[3].Y})\n'
-            expression += f'{indents}  )\n'
-        expression += f'{indents}  {start}{end}{angle}(layer "{dequote(self.layer)}"){tstamp}\n'
+            expression += f"{indents}  (pts\n"
+            expression += f"{indents}    (xy {self.pts[0].X} {self.pts[0].Y})        (xy {self.pts[1].X} {self.pts[1].Y})        (xy {self.pts[2].X} {self.pts[2].Y})        (xy {self.pts[3].X} {self.pts[3].Y})\n"
+            expression += f"{indents}  )\n"
+        expression += (
+            f'{indents}  {start}{end}{angle}(layer "{dequote(self.layer)}"){tstamp}\n'
+        )
         if self.effects is not None:
-            expression += self.effects.to_sexpr(indent+2)
+            expression += self.effects.to_sexpr(indent + 2)
         if self.stroke is not None:
-            expression += self.stroke.to_sexpr(indent+2)
+            expression += self.stroke.to_sexpr(indent + 2)
         if self.renderCache is not None:
-            expression += self.renderCache.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression += self.renderCache.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class GrLine():
+class GrLine:
     """The ``gr_line`` token defines a graphical line.
 
     Documentation:
@@ -292,10 +318,10 @@ class GrLine():
     layer: Optional[str] = None
     """The ``layer`` token defines the canonical layer the rectangle resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the rectangle. (prior to version 7)"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the rectangle object"""
 
     locked: bool = False
@@ -318,19 +344,25 @@ class GrLine():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_line':
+        if exp[0] != "gr_line":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'start': object.start = Position.from_sexpr(item)
-            if item[0] == 'end': object.end = Position.from_sexpr(item)
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "start":
+                object.start = Position.from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position.from_sexpr(item)
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "width":
+                object.width = item[1]
         return object
 
     def to_sexpr(self, indent: int = 2, newline: bool = True) -> str:
@@ -343,18 +375,19 @@ class GrLine():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        locked = f' locked' if self.locked else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        locked = f" locked" if self.locked else ""
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
-        angle = f' (angle {self.angle}' if self.angle is not None else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
+        angle = f" (angle {self.angle}" if self.angle is not None else ""
 
-        return f'{indents}(gr_line{locked} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y}){angle}{layer} (width {self.width}){tstamp}){endline}'
+        return f"{indents}(gr_line{locked} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y}){angle}{layer} (width {self.width}){tstamp}){endline}"
+
 
 @dataclass
-class GrRect():
+class GrRect:
     """The ``gr_rect`` token defines a graphical rectangle.
 
     Documentation:
@@ -370,13 +403,13 @@ class GrRect():
     layer: Optional[str] = None
     """The ``layer`` token defines the canonical layer the rectangle resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the rectangle. (prior to version 7)"""
 
     fill: Optional[str] = None
     """The optional ``fill`` toke defines how the rectangle is filled. Valid fill types are solid and none. If not defined, the rectangle is not filled"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the rectangle object"""
 
     locked: bool = False
@@ -399,20 +432,27 @@ class GrRect():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_rect':
+        if exp[0] != "gr_rect":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'start': object.start = Position.from_sexpr(item)
-            if item[0] == 'end': object.end = Position.from_sexpr(item)
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'fill': object.fill = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "start":
+                object.start = Position.from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position.from_sexpr(item)
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "fill":
+                object.fill = item[1]
+            if item[0] == "width":
+                object.width = item[1]
         return object
 
     def to_sexpr(self, indent: int = 2, newline: bool = True) -> str:
@@ -425,18 +465,19 @@ class GrRect():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        locked = f' locked' if self.locked else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        locked = f" locked" if self.locked else ""
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
-        fill = f' (fill {self.fill})' if self.fill is not None else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
+        fill = f" (fill {self.fill})" if self.fill is not None else ""
 
-        return f'{indents}(gr_rect{locked} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){fill}{tstamp}){endline}'
+        return f"{indents}(gr_rect{locked} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){fill}{tstamp}){endline}"
+
 
 @dataclass
-class GrCircle():
+class GrCircle:
     """The ``gr_circle `` token defines a graphical circle.
 
     Documentation:
@@ -452,13 +493,13 @@ class GrCircle():
     layer: Optional[str] = None
     """The ``layer`` token defines the canonical layer the circle resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the circle. (prior to version 7)"""
 
     fill: Optional[str] = None
     """The optional ``fill`` toke defines how the circle is filled. Valid fill types are solid and none. If not defined, the rectangle is not filled"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the circle object"""
 
     locked: bool = False
@@ -481,20 +522,27 @@ class GrCircle():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_circle':
+        if exp[0] != "gr_circle":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'center': object.center = Position.from_sexpr(item)
-            if item[0] == 'end': object.end = Position.from_sexpr(item)
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'fill': object.fill = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "center":
+                object.center = Position.from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position.from_sexpr(item)
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "fill":
+                object.fill = item[1]
+            if item[0] == "width":
+                object.width = item[1]
 
         return object
 
@@ -508,18 +556,19 @@ class GrCircle():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        locked = f' locked' if self.locked else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        locked = f" locked" if self.locked else ""
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
-        fill = f' (fill {self.fill})' if self.fill is not None else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
+        fill = f" (fill {self.fill})" if self.fill is not None else ""
 
-        return f'{indents}(gr_circle{locked} (center {self.center.X} {self.center.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){fill}{tstamp}){endline}'
+        return f"{indents}(gr_circle{locked} (center {self.center.X} {self.center.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){fill}{tstamp}){endline}"
+
 
 @dataclass
-class GrArc():
+class GrArc:
     """The ``gr_arc`` token defines a graphic arc.
 
     Documentation:
@@ -538,10 +587,10 @@ class GrArc():
     layer: Optional[str] = None
     """The ``layer`` token defines the canonical layer the arc resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the arc. (prior to version 7)"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the arc object."""
 
     locked: bool = False
@@ -564,20 +613,27 @@ class GrArc():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_arc':
+        if exp[0] != "gr_arc":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'start': object.start = Position.from_sexpr(item)
-            if item[0] == 'mid': object.mid = Position.from_sexpr(item)
-            if item[0] == 'end': object.end = Position.from_sexpr(item)
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "start":
+                object.start = Position.from_sexpr(item)
+            if item[0] == "mid":
+                object.mid = Position.from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position.from_sexpr(item)
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "width":
+                object.width = item[1]
 
         return object
 
@@ -591,17 +647,18 @@ class GrArc():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        locked = f' locked' if self.locked else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        locked = f" locked" if self.locked else ""
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
 
-        return f'{indents}(gr_arc{locked} (start {self.start.X} {self.start.Y}) (mid {self.mid.X} {self.mid.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){tstamp}){endline}'
+        return f"{indents}(gr_arc{locked} (start {self.start.X} {self.start.Y}) (mid {self.mid.X} {self.mid.Y}) (end {self.end.X} {self.end.Y}){layer} (width {self.width}){tstamp}){endline}"
+
 
 @dataclass
-class GrPoly():
+class GrPoly:
     """The ``gr_poly`` token defines a graphic polygon in a footprint definition.
 
     Documentation:
@@ -614,13 +671,13 @@ class GrPoly():
     coordinates: List[Position] = field(default_factory=list)
     """The ``layer`` token defines the canonical layer the polygon resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the polygon. (prior to version 7)"""
 
     fill: Optional[str] = None
     """The optional ``fill`` toke defines how the polygon is filled. Valid fill types are solid and none. If not defined, the rectangle is not filled"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the polygon object"""
 
     locked: bool = False
@@ -643,26 +700,33 @@ class GrPoly():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_poly':
+        if exp[0] != "gr_poly":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
 
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'pts':
+            if item[0] == "pts":
                 for point in item[1:]:
                     object.coordinates.append(Position().from_sexpr(point))
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'fill': object.fill = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "fill":
+                object.fill = item[1]
+            if item[0] == "width":
+                object.width = item[1]
 
         return object
 
-    def to_sexpr(self, indent: int = 2, newline: bool = True, pts_newline: bool = False) -> str:
+    def to_sexpr(
+        self, indent: int = 2, newline: bool = True, pts_newline: bool = False
+    ) -> str:
         """Generate the S-Expression representing this object. When no coordinates are set
         in the polygon, the resulting S-Expression will be left empty.
 
@@ -670,50 +734,54 @@ class GrPoly():
             - indent (int): Number of whitespaces used to indent the output. Defaults to 2.
             - newline (bool): Adds a newline to the end of the output. Defaults to True.
             - pts_newline (bool): Adds a newline for the ``(pts ..)`` token as KiCad treats
-                                  this different in Board files than Footprint files. Defaults to 
+                                  this different in Board files than Footprint files. Defaults to
                                   False.
 
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         if len(self.coordinates) == 0:
-            return f'{indents}{endline}'
+            return f"{indents}{endline}"
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
-        fill = f' (fill {self.fill})' if self.fill is not None else ''
-        locked = f' locked' if self.locked else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
+        fill = f" (fill {self.fill})" if self.fill is not None else ""
+        locked = f" locked" if self.locked else ""
 
         if pts_newline:
-            expression =  f'{indents}(gr_poly{locked}\n'
-            expression += f'{indents}  (pts\n'
+            expression = f"{indents}(gr_poly{locked}\n"
+            expression += f"{indents}  (pts\n"
         else:
-            expression =  f'{indents}(gr_poly{locked} (pts\n'
+            expression = f"{indents}(gr_poly{locked} (pts\n"
 
         for point in self.coordinates:
-            expression += f'{indents}    (xy {point.X} {point.Y})\n'
-        expression += f'{indents}  ){layer} (width {self.width}){fill}{tstamp}){endline}'
+            expression += f"{indents}    (xy {point.X} {point.Y})\n"
+        expression += (
+            f"{indents}  ){layer} (width {self.width}){fill}{tstamp}){endline}"
+        )
         return expression
 
+
 @dataclass
-class GrCurve():
+class GrCurve:
     """The ``gr_curve`` token defines a graphic Cubic Bezier curve in a footprint definition.
 
     Documentation:
         https://dev-docs.kicad.org/en/file-formats/sexpr-intro/index.html#_graphical_curve
     """
+
     coordinates: List[Position] = field(default_factory=list)
     """The ``coordinates`` define the list of X/Y coordinates of the curve outline"""
 
     layer: Optional[str] = None
     """The ``layer`` token defines the canonical layer the curve resides on"""
 
-    width: Optional[float] = 0.12     # Used for KiCad < 7
+    width: Optional[float] = 0.12  # Used for KiCad < 7
     """The ``width`` token defines the line width of the curve. (prior to version 7)"""
 
-    tstamp: Optional[str] = None      # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the curve object"""
 
     locked: bool = False
@@ -736,20 +804,24 @@ class GrCurve():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'gr_curve':
+        if exp[0] != "gr_curve":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'pts':
+            if item[0] == "pts":
                 for point in item[1:]:
                     object.coordinates.append(Position().from_sexpr(point))
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'width': object.width = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "width":
+                object.width = item[1]
 
         return object
 
@@ -764,17 +836,17 @@ class GrCurve():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         if len(self.coordinates) == 0:
-            return f'{indents}{endline}'
+            return f"{indents}{endline}"
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        layer =  f' (layer "{dequote(self.layer)}")' if self.layer is not None else ''
-        locked = f' locked' if self.locked else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
+        locked = f" locked" if self.locked else ""
 
-        expression = f'{indents}(gr_curve{locked} (pts\n'
+        expression = f"{indents}(gr_curve{locked} (pts\n"
         for point in self.coordinates:
-            expression += f'{indents}  (xy {point.X} {point.Y})\n'
-        expression += f'{indents}){layer} (width {self.width}){tstamp}){endline}'
+            expression += f"{indents}  (xy {point.X} {point.Y})\n"
+        expression += f"{indents}){layer} (width {self.width}){tstamp}){endline}"
         return expression

@@ -17,13 +17,14 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 from kiutils.items.common import Position
 from kiutils.utils.strings import dequote
 
+
 @dataclass
-class KeepoutSettings():
+class KeepoutSettings:
     """The ``keepout `` token attributes define which objects should be kept out of the
     zone. This section only applies to keep out zones.
 
@@ -68,7 +69,7 @@ class KeepoutSettings():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'keepout':
+        if exp[0] != "keepout":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -76,11 +77,16 @@ class KeepoutSettings():
             if type(item) != type([]):
                 continue
 
-            if item[0] == 'tracks': object.tracks = item[1]
-            if item[0] == 'vias': object.vias = item[1]
-            if item[0] == 'pads': object.pads = item[1]
-            if item[0] == 'copperpour': object.copperpour = item[1]
-            if item[0] == 'footprints': object.footprints = item[1]
+            if item[0] == "tracks":
+                object.tracks = item[1]
+            if item[0] == "vias":
+                object.vias = item[1]
+            if item[0] == "pads":
+                object.pads = item[1]
+            if item[0] == "copperpour":
+                object.copperpour = item[1]
+            if item[0] == "footprints":
+                object.footprints = item[1]
 
         return object
 
@@ -95,14 +101,15 @@ class KeepoutSettings():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
         # KiCad seems to add a whitespace to the pad token here
-        return f'{indents}(keepout (tracks {self.tracks}) (vias {self.vias}) (pads {self.pads} ) (copperpour {self.copperpour}) (footprints {self.footprints})){endline}'
+        return f"{indents}(keepout (tracks {self.tracks}) (vias {self.vias}) (pads {self.pads} ) (copperpour {self.copperpour}) (footprints {self.footprints})){endline}"
+
 
 @dataclass
-class FillSettings():
+class FillSettings:
     """The ``fill`` token attributes define how the zone is to be filled.
 
     Documentation:
@@ -195,29 +202,45 @@ class FillSettings():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'fill':
+        if exp[0] != "fill":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'yes': object.yes = True
-                else: continue
+                if item == "yes":
+                    object.yes = True
+                else:
+                    continue
 
-            if item[0] == 'mode': object.mode = item[1]
-            if item[0] == 'thermal_gap': object.thermalGap = item[1]
-            if item[0] == 'thermal_bridge_width': object.thermalBridgeWidth = item[1]
-            if item[0] == 'smoothing': object.smoothingStyle = item[1]
-            if item[0] == 'radius': object.smoothingRadius = item[1]
-            if item[0] == 'island_removal_mode': object.islandRemovalMode = item[1]
-            if item[0] == 'island_area_min': object.islandAreaMin = item[1]
-            if item[0] == 'hatch_thickness': object.hatchThickness = item[1]
-            if item[0] == 'hatch_gap': object.hatchGap = item[1]
-            if item[0] == 'hatch_orientation': object.hatchOrientation = item[1]
-            if item[0] == 'hatch_smoothing_level': object.hatchSmoothingLevel = item[1]
-            if item[0] == 'hatch_smoothing_value': object.hatchSmoothingValue = item[1]
-            if item[0] == 'hatch_border_algorithm': object.hatchBorderAlgorithm = item[1]
-            if item[0] == 'hatch_min_hole_area': object.hatchMinHoleArea = item[1]
+            if item[0] == "mode":
+                object.mode = item[1]
+            if item[0] == "thermal_gap":
+                object.thermalGap = item[1]
+            if item[0] == "thermal_bridge_width":
+                object.thermalBridgeWidth = item[1]
+            if item[0] == "smoothing":
+                object.smoothingStyle = item[1]
+            if item[0] == "radius":
+                object.smoothingRadius = item[1]
+            if item[0] == "island_removal_mode":
+                object.islandRemovalMode = item[1]
+            if item[0] == "island_area_min":
+                object.islandAreaMin = item[1]
+            if item[0] == "hatch_thickness":
+                object.hatchThickness = item[1]
+            if item[0] == "hatch_gap":
+                object.hatchGap = item[1]
+            if item[0] == "hatch_orientation":
+                object.hatchOrientation = item[1]
+            if item[0] == "hatch_smoothing_level":
+                object.hatchSmoothingLevel = item[1]
+            if item[0] == "hatch_smoothing_value":
+                object.hatchSmoothingValue = item[1]
+            if item[0] == "hatch_border_algorithm":
+                object.hatchBorderAlgorithm = item[1]
+            if item[0] == "hatch_min_hole_area":
+                object.hatchMinHoleArea = item[1]
 
         return object
 
@@ -232,27 +255,68 @@ class FillSettings():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        yes = ' yes' if self.yes else ''
-        mode = f' (mode {self.mode})' if self.mode is not None else ''
-        smoothing = f' (smoothing {self.smoothingStyle})' if self.smoothingStyle is not None else ''
-        radius = f' (radius {self.smoothingRadius})' if self.smoothingRadius is not None else ''
-        irm = f' (island_removal_mode {self.islandRemovalMode})' if self.islandRemovalMode is not None else ''
-        iam = f' (island_area_min {self.islandAreaMin})' if self.islandAreaMin is not None else ''
-        ht = f'\n{indents}  (hatch_thickness {self.hatchThickness})' if self.hatchThickness is not None else ''
-        hg = f' (hatch_gap {self.hatchGap})' if self.hatchGap is not None else ''
-        ho = f' (hatch_orientation {self.hatchOrientation})' if self.hatchOrientation is not None else ''
-        hsl = f'\n{indents}  (hatch_smoothing_level {self.hatchSmoothingLevel})' if self.hatchSmoothingLevel is not None else ''
-        hsv = f' (hatch_smoothing_value {self.hatchSmoothingValue})' if self.hatchSmoothingValue is not None else ''
-        hba = f'\n{indents}  (hatch_border_algorithm {self.hatchBorderAlgorithm})' if self.hatchBorderAlgorithm is not None else ''
-        hmha = f' (hatch_min_hole_area {self.hatchMinHoleArea})' if self.hatchMinHoleArea is not None else ''
+        yes = " yes" if self.yes else ""
+        mode = f" (mode {self.mode})" if self.mode is not None else ""
+        smoothing = (
+            f" (smoothing {self.smoothingStyle})"
+            if self.smoothingStyle is not None
+            else ""
+        )
+        radius = (
+            f" (radius {self.smoothingRadius})"
+            if self.smoothingRadius is not None
+            else ""
+        )
+        irm = (
+            f" (island_removal_mode {self.islandRemovalMode})"
+            if self.islandRemovalMode is not None
+            else ""
+        )
+        iam = (
+            f" (island_area_min {self.islandAreaMin})"
+            if self.islandAreaMin is not None
+            else ""
+        )
+        ht = (
+            f"\n{indents}  (hatch_thickness {self.hatchThickness})"
+            if self.hatchThickness is not None
+            else ""
+        )
+        hg = f" (hatch_gap {self.hatchGap})" if self.hatchGap is not None else ""
+        ho = (
+            f" (hatch_orientation {self.hatchOrientation})"
+            if self.hatchOrientation is not None
+            else ""
+        )
+        hsl = (
+            f"\n{indents}  (hatch_smoothing_level {self.hatchSmoothingLevel})"
+            if self.hatchSmoothingLevel is not None
+            else ""
+        )
+        hsv = (
+            f" (hatch_smoothing_value {self.hatchSmoothingValue})"
+            if self.hatchSmoothingValue is not None
+            else ""
+        )
+        hba = (
+            f"\n{indents}  (hatch_border_algorithm {self.hatchBorderAlgorithm})"
+            if self.hatchBorderAlgorithm is not None
+            else ""
+        )
+        hmha = (
+            f" (hatch_min_hole_area {self.hatchMinHoleArea})"
+            if self.hatchMinHoleArea is not None
+            else ""
+        )
 
-        return f'{indents}(fill{yes}{mode} (thermal_gap {self.thermalGap}) (thermal_bridge_width {self.thermalBridgeWidth}){smoothing}{radius}{irm}{iam}{ht}{hg}{ho}{hsl}{hsv}{hba}{hmha}){endline}'
+        return f"{indents}(fill{yes}{mode} (thermal_gap {self.thermalGap}) (thermal_bridge_width {self.thermalBridgeWidth}){smoothing}{radius}{irm}{iam}{ht}{hg}{ho}{hsl}{hsv}{hba}{hmha}){endline}"
+
 
 @dataclass
-class ZonePolygon():
+class ZonePolygon:
     """The ``polygon`` token defines a list of coordinates that define part of a zone"""
 
     coordinates: List[Position] = field(default_factory=list)
@@ -275,14 +339,14 @@ class ZonePolygon():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'polygon':
+        if exp[0] != "polygon":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
                 continue
-            if item[0] == 'pts':
+            if item[0] == "pts":
                 for position in item[1:]:
                     object.coordinates.append(Position().from_sexpr(position))
 
@@ -297,24 +361,25 @@ class ZonePolygon():
             - newline (bool): Adds a newline to the end of the output. Defaults to True.
 
         Returns:
-            - str: S-Expression of this object. If the polygon has no coordinates, an empty 
+            - str: S-Expression of this object. If the polygon has no coordinates, an empty
                    expression is returned.
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         if len(self.coordinates) == 0:
-            return f'{indents}{endline}'
+            return f"{indents}{endline}"
 
-        expression =  f'{indents}(polygon\n'
-        expression += f'{indents}  (pts\n'
+        expression = f"{indents}(polygon\n"
+        expression += f"{indents}  (pts\n"
         for point in self.coordinates:
-            expression += f'{indents}    (xy {point.X} {point.Y})\n'
-        expression += f'{indents}  )\n'
-        expression += f'{indents})\n'
+            expression += f"{indents}    (xy {point.X} {point.Y})\n"
+        expression += f"{indents}  )\n"
+        expression += f"{indents})\n"
         return expression
 
+
 @dataclass
-class FilledPolygon():
+class FilledPolygon:
     """The ``filled_polygon`` token defines the polygons used to fill a zone
 
     Documentation:
@@ -348,7 +413,7 @@ class FilledPolygon():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'filled_polygon':
+        if exp[0] != "filled_polygon":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -356,9 +421,11 @@ class FilledPolygon():
             if type(item) != type([]):
                 continue
 
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'island': object.island = True
-            if item[0] == 'pts':
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "island":
+                object.island = True
+            if item[0] == "pts":
                 for position in item[1:]:
                     object.coordinates.append(Position().from_sexpr(position))
 
@@ -373,28 +440,29 @@ class FilledPolygon():
             - newline (bool): Adds a newline to the end of the output. Defaults to True.
 
         Returns:
-            - str: S-Expression of this object. If the filled polygon has no coordinates, an empty 
+            - str: S-Expression of this object. If the filled polygon has no coordinates, an empty
                    expression is returned.
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         if len(self.coordinates) == 0:
-            return f'{indents}{endline}'
+            return f"{indents}{endline}"
 
-        expression =  f'{indents}(filled_polygon\n'
+        expression = f"{indents}(filled_polygon\n"
         expression += f'{indents}  (layer "{dequote(self.layer)}")\n'
         if self.island:
-            expression += f'{indents}  (island)\n'
-        expression += f'{indents}  (pts\n'
+            expression += f"{indents}  (island)\n"
+        expression += f"{indents}  (pts\n"
         for point in self.coordinates:
-            expression += f'{indents}    (xy {point.X} {point.Y})\n'
-        expression += f'{indents}  )\n'
-        expression += f'{indents})\n'
+            expression += f"{indents}    (xy {point.X} {point.Y})\n"
+        expression += f"{indents}  )\n"
+        expression += f"{indents})\n"
         return expression
+
 
 # TODO: This is KiCad 4 stuff, has to be tested yet ..
 @dataclass
-class FillSegments():
+class FillSegments:
     """The ``fill_polygon`` token defines the segments used to fill the zone. This is only
        used when loading boards prior to version 4 which filled zones with segments.
 
@@ -425,7 +493,7 @@ class FillSegments():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'fill_segments':
+        if exp[0] != "fill_segments":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -433,8 +501,9 @@ class FillSegments():
             if type(item) != type([]):
                 continue
 
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'pts':
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "pts":
                 for position in item[1:]:
                     object.coordinates.append(Position().from_sexpr(position))
 
@@ -449,25 +518,26 @@ class FillSegments():
             - newline (bool): Adds a newline to the end of the output. Defaults to True.
 
         Returns:
-            - str: S-Expression of this object. If the fill segments has no coordinates, an empty 
+            - str: S-Expression of this object. If the fill segments has no coordinates, an empty
               expression is returned.
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         if len(self.coordinates) == 0:
-            return f'{indents}{endline}'
+            return f"{indents}{endline}"
 
-        expression =  f'{indents}(fill_segments\n'
+        expression = f"{indents}(fill_segments\n"
         expression += f'{indents}  (layer "{dequote(self.layer)}")\n'
-        expression += f'{indents}  (pts\n'
+        expression += f"{indents}  (pts\n"
         for point in self.coordinates:
-            expression += f'{indents}    (xy {point.X} {point.Y})\n'
-        expression += f'{indents}  )\n'
-        expression += f'{indents})\n'
+            expression += f"{indents}    (xy {point.X} {point.Y})\n"
+        expression += f"{indents}  )\n"
+        expression += f"{indents})\n"
         return expression
 
+
 @dataclass
-class Hatch():
+class Hatch:
     """Data wrapper for Zone class hatching attribute"""
 
     style: str = "none"
@@ -477,8 +547,9 @@ class Hatch():
     pitch: float = 0.0
     """The ``pitch`` token defines the pitch of the hatch"""
 
+
 @dataclass
-class Zone():
+class Zone:
     """The ``zone`` token defines a zone on the board or footprint. Zones serve two purposes
        in KiCad: filled copper zones and keep out areas.
 
@@ -486,6 +557,7 @@ class Zone():
         https://dev-docs.kicad.org/en/file-formats/sexpr-intro/index.html#_zone
 
     """
+
     locked: bool = False
     """The ``locked`` token defines if the zone may be edited or not (Missing in KiCad
     docu as of 11.02.2022)"""
@@ -503,7 +575,7 @@ class Zone():
     strings. When the zone only resides on one layer, the output of ``self.to_sexpr()`` will
     change into ``(layer "xyz")`` instead of ``(layers ..)`` automatically."""
 
-    tstamp: Optional[str] = None       # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The ``tstamp`` token defines the unique identifier of the zone object"""
 
     name: Optional[str] = None
@@ -567,38 +639,52 @@ class Zone():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'zone':
+        if exp[0] != "zone":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
-                else: continue
+                if item == "locked":
+                    object.locked = True
+                else:
+                    continue
 
-            if item[0] == 'net': object.net = item[1]
-            if item[0] == 'net_name': object.netName = item[1]
-            if item[0] == 'layers' or item[0] == 'layer':
+            if item[0] == "net":
+                object.net = item[1]
+            if item[0] == "net_name":
+                object.netName = item[1]
+            if item[0] == "layers" or item[0] == "layer":
                 for layer in item[1:]:
                     object.layers.append(layer)
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'hatch':
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "hatch":
                 object.hatch = Hatch(style=item[1], pitch=item[2])
-            if item[0] == 'priority': object.priority = item[1]
-            if item[0] == 'connect_pads':
+            if item[0] == "priority":
+                object.priority = item[1]
+            if item[0] == "connect_pads":
                 if len(item) == 2:
                     object.clearance = item[1][1]
                 else:
                     object.connectPads = item[1]
                     object.clearance = item[2][1]
-            if item[0] == 'min_thickness': object.minThickness = item[1]
-            if item[0] == 'filled_areas_thickness': object.filledAreasThickness = item[1]
-            if item[0] == 'keepout': object.keepoutSettings = KeepoutSettings().from_sexpr(item)
-            if item[0] == 'fill': object.fillSettings = FillSettings().from_sexpr(item)
-            if item[0] == 'polygon': object.polygons.append(ZonePolygon().from_sexpr(item))
-            if item[0] == 'filled_polygon': object.filledPolygons.append(FilledPolygon().from_sexpr(item))
-            if item[0] == 'fill_segments': object.fillSegments = FillSegments().from_sexpr(item)
+            if item[0] == "min_thickness":
+                object.minThickness = item[1]
+            if item[0] == "filled_areas_thickness":
+                object.filledAreasThickness = item[1]
+            if item[0] == "keepout":
+                object.keepoutSettings = KeepoutSettings().from_sexpr(item)
+            if item[0] == "fill":
+                object.fillSettings = FillSettings().from_sexpr(item)
+            if item[0] == "polygon":
+                object.polygons.append(ZonePolygon().from_sexpr(item))
+            if item[0] == "filled_polygon":
+                object.filledPolygons.append(FilledPolygon().from_sexpr(item))
+            if item[0] == "fill_segments":
+                object.fillSegments = FillSegments().from_sexpr(item)
 
         return object
 
@@ -615,43 +701,53 @@ class Zone():
         Returns:
             - str: S-Expression of this object.
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        locked = f' locked' if self.locked else ''
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
-        name = f' (name "{dequote(self.name)}")' if self.name is not None else ''
-        contype = f' {self.connectPads}' if self.connectPads is not None else ''
-        fat = f' (filled_areas_thickness {self.filledAreasThickness})' if self.filledAreasThickness is not None else ''
-        layers, layer_token = '', ''
+        locked = f" locked" if self.locked else ""
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
+        name = f' (name "{dequote(self.name)}")' if self.name is not None else ""
+        contype = f" {self.connectPads}" if self.connectPads is not None else ""
+        fat = (
+            f" (filled_areas_thickness {self.filledAreasThickness})"
+            if self.filledAreasThickness is not None
+            else ""
+        )
+        layers, layer_token = "", ""
         for layer in self.layers:
             layers += f' "{dequote(layer)}"'
-            
+
         if len(self.layers) == 0:
             raise Exception("Zone: No layers set for this zone")
-        elif len(self.layers) == 1 and self.layers[0] != "F&B.Cu" and self.layers[0] != "*.Cu":
-            layer_token = f' (layer{layers})'
+        elif (
+            len(self.layers) == 1
+            and self.layers[0] != "F&B.Cu"
+            and self.layers[0] != "*.Cu"
+        ):
+            layer_token = f" (layer{layers})"
         else:
-            layer_token = f' (layers{layers})'
+            layer_token = f" (layers{layers})"
 
-        expression =  f'{indents}(zone{locked} (net {self.net}) (net_name "{dequote(self.netName)}"){layer_token}{tstamp}{name} (hatch {self.hatch.style} {self.hatch.pitch})\n'
+        expression = f'{indents}(zone{locked} (net {self.net}) (net_name "{dequote(self.netName)}"){layer_token}{tstamp}{name} (hatch {self.hatch.style} {self.hatch.pitch})\n'
         if self.priority is not None:
-            expression += f'{indents}  (priority {self.priority})\n'
-        expression += f'{indents}  (connect_pads{contype} (clearance {self.clearance}))\n'
-        expression += f'{indents}  (min_thickness {self.minThickness}){fat}\n'
+            expression += f"{indents}  (priority {self.priority})\n"
+        expression += (
+            f"{indents}  (connect_pads{contype} (clearance {self.clearance}))\n"
+        )
+        expression += f"{indents}  (min_thickness {self.minThickness}){fat}\n"
         if self.keepoutSettings is not None:
-            expression += f'{indents}  {self.keepoutSettings.to_sexpr()}\n'
+            expression += f"{indents}  {self.keepoutSettings.to_sexpr()}\n"
         if self.fillSettings is not None:
-            expression += self.fillSettings.to_sexpr(indent+2, True)
+            expression += self.fillSettings.to_sexpr(indent + 2, True)
 
         for polygon in self.polygons:
-            expression += polygon.to_sexpr(indent+2)
+            expression += polygon.to_sexpr(indent + 2)
 
         for polygon in self.filledPolygons:
-            expression += polygon.to_sexpr(indent+2)
+            expression += polygon.to_sexpr(indent + 2)
 
         # TODO: This is KiKad 4 stuff...
         if self.fillSegments is not None:
             expression += self.fillSegments.to_sexpr()
-        expression += f'{indents}){endline}'
+        expression += f"{indents}){endline}"
         return expression

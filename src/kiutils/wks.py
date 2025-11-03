@@ -16,16 +16,20 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
 from os import path
+from typing import List, Optional
 
 from kiutils.items.common import Justify
-from kiutils.utils.strings import dequote
+from kiutils.misc.config import (
+    KIUTILS_CREATE_NEW_GENERATOR_STR,
+    KIUTILS_CREATE_NEW_VERSION_STR,
+)
 from kiutils.utils import sexpr
-from kiutils.misc.config import KIUTILS_CREATE_NEW_GENERATOR_STR, KIUTILS_CREATE_NEW_VERSION_STR
+from kiutils.utils.strings import dequote
+
 
 @dataclass
-class WksFontSize():
+class WksFontSize:
     """The ``WksFontSize`` token defines the size of a font in a worksheet"""
 
     width: float = 1.0
@@ -51,7 +55,7 @@ class WksFontSize():
         if not isinstance(exp, list) or len(exp) != 3:
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'size':
+        if exp[0] != "size":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -69,12 +73,13 @@ class WksFontSize():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        return f'{indents}(size {self.width} {self.height}){endline}'
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        return f"{indents}(size {self.width} {self.height}){endline}"
+
 
 @dataclass
-class WksFont():
+class WksFont:
     """The ``WksFont`` token defines how a text is drawn"""
 
     linewidth: Optional[float] = None
@@ -106,17 +111,21 @@ class WksFont():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'font':
+        if exp[0] != "font":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'bold': object.bold = True
-                if item == 'italic': object.italic = True
+                if item == "bold":
+                    object.bold = True
+                if item == "italic":
+                    object.italic = True
                 continue
-            if item[0] == 'linewidth': object.linewidth = item[1]
-            if item[0] == 'size': object.size = WksFontSize().from_sexpr(item)
+            if item[0] == "linewidth":
+                object.linewidth = item[1]
+            if item[0] == "size":
+                object.size = WksFontSize().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent=0, newline=False):
@@ -130,21 +139,22 @@ class WksFont():
             - str: S-Expression of this object. Will return an empty string, if all members of this
                    class are set to ``None``.
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        lw = f' (linewidth {self.linewidth})' if self.linewidth is not None else ''
-        size = f' {self.size.to_sexpr()}' if self.size is not None else ''
-        bold = f' bold' if self.bold else ''
-        italic = f' italic' if self.italic else ''
+        lw = f" (linewidth {self.linewidth})" if self.linewidth is not None else ""
+        size = f" {self.size.to_sexpr()}" if self.size is not None else ""
+        bold = f" bold" if self.bold else ""
+        italic = f" italic" if self.italic else ""
 
-        if lw == '' and size == '' and bold == '' and italic == '':
-            return ''
+        if lw == "" and size == "" and bold == "" and italic == "":
+            return ""
         else:
-            return f'{indents}(font{lw}{size}{bold}{italic}){endline}'
+            return f"{indents}(font{lw}{size}{bold}{italic}){endline}"
+
 
 @dataclass
-class WksPosition():
+class WksPosition:
     """The ``WksPosition`` token defines the positional coordinates and rotation of an worksheet
     object.
     """
@@ -187,10 +197,13 @@ class WksPosition():
 
     def to_sexpr(self) -> str:
         """This object does not have a direct S-Expression representation."""
-        raise NotImplementedError("This object does not have a direct S-Expression representation")
+        raise NotImplementedError(
+            "This object does not have a direct S-Expression representation"
+        )
+
 
 @dataclass
-class Line():
+class Line:
     """The ``Line`` token defines how a line is drawn in a work sheet
 
     Documentation:
@@ -244,20 +257,29 @@ class Line():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'line':
+        if exp[0] != "line":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp[1:]:
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'start': object.start = WksPosition().from_sexpr(item)
-            if item[0] == 'end': object.end = WksPosition().from_sexpr(item)
-            if item[0] == 'option': object.option = item[1]
-            if item[0] == 'linewidth': object.lineWidth = item[1]
-            if item[0] == 'repeat': object.repeat = item[1]
-            if item[0] == 'incrx': object.incrx = item[1]
-            if item[0] == 'incry': object.incry = item[1]
-            if item[0] == 'comment': object.comment = item[1]
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "start":
+                object.start = WksPosition().from_sexpr(item)
+            if item[0] == "end":
+                object.end = WksPosition().from_sexpr(item)
+            if item[0] == "option":
+                object.option = item[1]
+            if item[0] == "linewidth":
+                object.lineWidth = item[1]
+            if item[0] == "repeat":
+                object.repeat = item[1]
+            if item[0] == "incrx":
+                object.incrx = item[1]
+            if item[0] == "incry":
+                object.incry = item[1]
+            if item[0] == "comment":
+                object.comment = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True):
@@ -270,30 +292,36 @@ class Line():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        start_corner = f' {self.start.corner}' if self.start.corner is not None else ''
-        end_corner = f' {self.end.corner}' if self.end.corner is not None else ''
-        option = f' (option {self.option})' if self.option is not None else ''
-        repeat = f' (repeat {self.repeat})' if self.repeat is not None else ''
-        incrx = f' (incrx {self.incrx})' if self.incrx is not None else ''
-        incry = f' (incry {self.incry})' if self.incry is not None else ''
-        comment = f' (comment "{dequote(self.comment)}")\n' if self.comment is not None else ''
-        lw = f' (linewidth {self.lineWidth})' if self.lineWidth is not None else ''
+        start_corner = f" {self.start.corner}" if self.start.corner is not None else ""
+        end_corner = f" {self.end.corner}" if self.end.corner is not None else ""
+        option = f" (option {self.option})" if self.option is not None else ""
+        repeat = f" (repeat {self.repeat})" if self.repeat is not None else ""
+        incrx = f" (incrx {self.incrx})" if self.incrx is not None else ""
+        incry = f" (incry {self.incry})" if self.incry is not None else ""
+        comment = (
+            f' (comment "{dequote(self.comment)}")\n'
+            if self.comment is not None
+            else ""
+        )
+        lw = f" (linewidth {self.lineWidth})" if self.lineWidth is not None else ""
 
-        expression  = f'{indents}(line (name "{dequote(self.name)}") '
-        expression += f'(start {self.start.X} {self.start.Y}{start_corner}) '
-        expression += f'(end {self.end.X} {self.end.Y}{end_corner})'
-        expression += f'{option}{lw}{repeat}{incrx}{incry}{comment}){endline}'
+        expression = f'{indents}(line (name "{dequote(self.name)}") '
+        expression += f"(start {self.start.X} {self.start.Y}{start_corner}) "
+        expression += f"(end {self.end.X} {self.end.Y}{end_corner})"
+        expression += f"{option}{lw}{repeat}{incrx}{incry}{comment}){endline}"
         return expression
 
+
 @dataclass
-class Rect():
+class Rect:
     """The ``Rect`` token defines how a rectangle is drawn in a work sheet
 
     Documentation:
-        https://dev-docs.kicad.org/en/file-formats/sexpr-worksheet/#_graphical_rectangle"""
+        https://dev-docs.kicad.org/en/file-formats/sexpr-worksheet/#_graphical_rectangle
+    """
 
     name: str = ""
     """The ``name`` token defines the name of the rectangle object"""
@@ -343,20 +371,29 @@ class Rect():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'rect':
+        if exp[0] != "rect":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp[1:]:
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'start': object.start = WksPosition().from_sexpr(item)
-            if item[0] == 'end': object.end = WksPosition().from_sexpr(item)
-            if item[0] == 'option': object.option = item[1]
-            if item[0] == 'linewidth': object.lineWidth = item[1]
-            if item[0] == 'repeat': object.repeat = item[1]
-            if item[0] == 'incrx': object.incrx = item[1]
-            if item[0] == 'incry': object.incry = item[1]
-            if item[0] == 'comment': object.comment = item[1]
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "start":
+                object.start = WksPosition().from_sexpr(item)
+            if item[0] == "end":
+                object.end = WksPosition().from_sexpr(item)
+            if item[0] == "option":
+                object.option = item[1]
+            if item[0] == "linewidth":
+                object.lineWidth = item[1]
+            if item[0] == "repeat":
+                object.repeat = item[1]
+            if item[0] == "incrx":
+                object.incrx = item[1]
+            if item[0] == "incry":
+                object.incry = item[1]
+            if item[0] == "comment":
+                object.comment = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True):
@@ -369,26 +406,31 @@ class Rect():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        start_corner = f' {self.start.corner}' if self.start.corner is not None else ''
-        end_corner = f' {self.end.corner}' if self.end.corner is not None else ''
-        option = f' (option {self.option})' if self.option is not None else ''
-        repeat = f' (repeat {self.repeat})' if self.repeat is not None else ''
-        incrx = f' (incrx {self.incrx})' if self.incrx is not None else ''
-        incry = f' (incry {self.incry})' if self.incry is not None else ''
-        comment = f' (comment "{dequote(self.comment)}")\n' if self.comment is not None else ''
-        lw = f' (linewidth {self.lineWidth})' if self.lineWidth is not None else ''
+        start_corner = f" {self.start.corner}" if self.start.corner is not None else ""
+        end_corner = f" {self.end.corner}" if self.end.corner is not None else ""
+        option = f" (option {self.option})" if self.option is not None else ""
+        repeat = f" (repeat {self.repeat})" if self.repeat is not None else ""
+        incrx = f" (incrx {self.incrx})" if self.incrx is not None else ""
+        incry = f" (incry {self.incry})" if self.incry is not None else ""
+        comment = (
+            f' (comment "{dequote(self.comment)}")\n'
+            if self.comment is not None
+            else ""
+        )
+        lw = f" (linewidth {self.lineWidth})" if self.lineWidth is not None else ""
 
-        expression  = f'{indents}(rect (name "{dequote(self.name)}") '
-        expression += f'(start {self.start.X} {self.start.Y}{start_corner}) '
-        expression += f'(end {self.end.X} {self.end.Y}{end_corner})'
-        expression += f'{option}{lw}{repeat}{incrx}{incry}{comment}){endline}'
+        expression = f'{indents}(rect (name "{dequote(self.name)}") '
+        expression += f"(start {self.start.X} {self.start.Y}{start_corner}) "
+        expression += f"(end {self.end.X} {self.end.Y}{end_corner})"
+        expression += f"{option}{lw}{repeat}{incrx}{incry}{comment}){endline}"
         return expression
 
+
 @dataclass
-class Polygon():
+class Polygon:
     """The ``Polygon`` token defines a graphical polygon in a worksheet
 
     Documentation:
@@ -441,7 +483,9 @@ class Polygon():
             - Polygon: Object of the class initialized with the given S-Expression
         """
         # TODO: Polygons seem to not be available in the WKS editor GUI. Are those still a feature?
-        raise NotImplementedError("Polygons are not yet handled! Please report this bug along with the file being parsed.")
+        raise NotImplementedError(
+            "Polygons are not yet handled! Please report this bug along with the file being parsed."
+        )
 
     def to_sexpr(self, indent=0, newline=False):
         """Generate the S-Expression representing this object
@@ -453,10 +497,13 @@ class Polygon():
         Returns:
             - str: S-Expression of this object
         """
-        raise NotImplementedError("Polygons are not yet handled! Please report this bug along with the file being parsed.")
+        raise NotImplementedError(
+            "Polygons are not yet handled! Please report this bug along with the file being parsed."
+        )
+
 
 @dataclass
-class Bitmap():
+class Bitmap:
     """The ``Polygon`` token defines on or more embedded images
 
     Documentation:
@@ -521,23 +568,33 @@ class Bitmap():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'bitmap':
+        if exp[0] != "bitmap":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp[1:]:
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'pos': object.position = WksPosition().from_sexpr(item)
-            if item[0] == 'option': object.option = item[1]
-            if item[0] == 'scale': object.scale = item[1]
-            if item[0] == 'repeat': object.repeat = item[1]
-            if item[0] == 'incrx': object.incrx = item[1]
-            if item[0] == 'incry': object.incry = item[1]
-            if item[0] == 'comment': object.comment = item[1]
-            if item[0] == 'pngdata':
-                if len(item) < 2: continue
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "pos":
+                object.position = WksPosition().from_sexpr(item)
+            if item[0] == "option":
+                object.option = item[1]
+            if item[0] == "scale":
+                object.scale = item[1]
+            if item[0] == "repeat":
+                object.repeat = item[1]
+            if item[0] == "incrx":
+                object.incrx = item[1]
+            if item[0] == "incry":
+                object.incry = item[1]
+            if item[0] == "comment":
+                object.comment = item[1]
+            if item[0] == "pngdata":
+                if len(item) < 2:
+                    continue
                 for data in item[1:]:
-                    if data[0] != 'data': continue
+                    if data[0] != "data":
+                        continue
                     object.pngdata.append(data[1])
         return object
 
@@ -551,31 +608,31 @@ class Bitmap():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        repeat = f' (repeat {self.repeat})' if self.repeat is not None else ''
-        incrx = f' (incrx {self.incrx})' if self.incrx is not None else ''
-        incry = f' (incry {self.incry})' if self.incry is not None else ''
-        option = f' (option {self.option})' if self.option is not None else ''
-        corner = f' {self.position.corner}' if self.position.corner is not None else ''
+        repeat = f" (repeat {self.repeat})" if self.repeat is not None else ""
+        incrx = f" (incrx {self.incrx})" if self.incrx is not None else ""
+        incry = f" (incry {self.incry})" if self.incry is not None else ""
+        option = f" (option {self.option})" if self.option is not None else ""
+        corner = f" {self.position.corner}" if self.position.corner is not None else ""
 
-        expression  = f'{indents}(bitmap (name "{dequote(self.name)}") '
-        expression += f'(pos {self.position.X} {self.position.Y}{corner}){option} (scale {self.scale})'
-        expression += f'{repeat}{incrx}{incry}\n'
+        expression = f'{indents}(bitmap (name "{dequote(self.name)}") '
+        expression += f"(pos {self.position.X} {self.position.Y}{corner}){option} (scale {self.scale})"
+        expression += f"{repeat}{incrx}{incry}\n"
         if self.comment is not None:
             # Here KiCad decides to only use 1 space for some unknown reason ..
             expression += f' (comment "{dequote(self.comment)}")\n'
-        expression += f'{indents}(pngdata\n'
+        expression += f"{indents}(pngdata\n"
         for data in self.pngdata:
             expression += f'{indents}  (data "{data}")\n'
-        expression += f'{indents}  )\n'
-        expression += f'{indents}){endline}'
+        expression += f"{indents}  )\n"
+        expression += f"{indents}){endline}"
         return expression
 
 
 @dataclass
-class TbText():
+class TbText:
     """The ``TbText`` token define text used in the title block of a work sheet
 
     Documentation:
@@ -645,25 +702,38 @@ class TbText():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'tbtext':
+        if exp[0] != "tbtext":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.text = exp[1]
         for item in exp[2:]:
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'pos': object.position = WksPosition().from_sexpr(item)
-            if item[0] == 'option': object.option = item[1]
-            if item[0] == 'rotate': object.rotate = item[1]
-            if item[0] == 'font': object.font = WksFont().from_sexpr(item)
-            if item[0] == 'justify': object.justify = Justify().from_sexpr(item)
-            if item[0] == 'maxlen': object.maxlen = item[1]
-            if item[0] == 'maxheight': object.maxheight = item[1]
-            if item[0] == 'repeat': object.repeat = item[1]
-            if item[0] == 'incrx': object.incrx = item[1]
-            if item[0] == 'incry': object.incry = item[1]
-            if item[0] == 'incrlabel': object.incrlabel = item[1]
-            if item[0] == 'comment': object.comment = item[1]
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "pos":
+                object.position = WksPosition().from_sexpr(item)
+            if item[0] == "option":
+                object.option = item[1]
+            if item[0] == "rotate":
+                object.rotate = item[1]
+            if item[0] == "font":
+                object.font = WksFont().from_sexpr(item)
+            if item[0] == "justify":
+                object.justify = Justify().from_sexpr(item)
+            if item[0] == "maxlen":
+                object.maxlen = item[1]
+            if item[0] == "maxheight":
+                object.maxheight = item[1]
+            if item[0] == "repeat":
+                object.repeat = item[1]
+            if item[0] == "incrx":
+                object.incrx = item[1]
+            if item[0] == "incry":
+                object.incry = item[1]
+            if item[0] == "incrlabel":
+                object.incrlabel = item[1]
+            if item[0] == "comment":
+                object.comment = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True):
@@ -676,32 +746,42 @@ class TbText():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        corner = f' {self.position.corner}' if self.position.corner is not None else ''
-        repeat = f' (repeat {self.repeat})' if self.repeat is not None else ''
-        incrx = f' (incrx {self.incrx})' if self.incrx is not None else ''
-        incry = f' (incry {self.incry})' if self.incry is not None else ''
-        option = f' (option {self.option})' if self.option is not None else ''
-        rotate = f' (rotate {self.rotate})' if self.rotate is not None else ''
-        justify = f' {self.justify.to_sexpr()}' if self.justify is not None else ''
-        maxlen = f' (maxlen {self.maxlen})' if self.maxlen is not None else ''
-        maxheight = f' (maxheight {self.maxheight})' if self.maxheight is not None else ''
-        incrlabel = f' (incrlabel {self.incrlabel})' if self.incrlabel is not None else ''
-        font = f' {self.font.to_sexpr()}' if self.font.to_sexpr() != '' else ''
+        corner = f" {self.position.corner}" if self.position.corner is not None else ""
+        repeat = f" (repeat {self.repeat})" if self.repeat is not None else ""
+        incrx = f" (incrx {self.incrx})" if self.incrx is not None else ""
+        incry = f" (incry {self.incry})" if self.incry is not None else ""
+        option = f" (option {self.option})" if self.option is not None else ""
+        rotate = f" (rotate {self.rotate})" if self.rotate is not None else ""
+        justify = f" {self.justify.to_sexpr()}" if self.justify is not None else ""
+        maxlen = f" (maxlen {self.maxlen})" if self.maxlen is not None else ""
+        maxheight = (
+            f" (maxheight {self.maxheight})" if self.maxheight is not None else ""
+        )
+        incrlabel = (
+            f" (incrlabel {self.incrlabel})" if self.incrlabel is not None else ""
+        )
+        font = f" {self.font.to_sexpr()}" if self.font.to_sexpr() != "" else ""
 
-        expression  = f'{indents}(tbtext "{dequote(self.text)}" (name "{dequote(self.name)}") '
-        expression += f'(pos {self.position.X} {self.position.Y}{corner}){option}{rotate}'
-        expression += f'{font}{justify}{maxlen}{maxheight}{repeat}{incrx}{incry}{incrlabel}'
+        expression = (
+            f'{indents}(tbtext "{dequote(self.text)}" (name "{dequote(self.name)}") '
+        )
+        expression += (
+            f"(pos {self.position.X} {self.position.Y}{corner}){option}{rotate}"
+        )
+        expression += (
+            f"{font}{justify}{maxlen}{maxheight}{repeat}{incrx}{incry}{incrlabel}"
+        )
         if self.comment is not None:
             expression += f' (comment "{dequote(self.comment)}")\n'
-        expression += f'){endline}'
+        expression += f"){endline}"
         return expression
 
 
 @dataclass
-class TextSize():
+class TextSize:
     """The ``TextSize`` define the default width and height of text"""
 
     width: float = 1.5
@@ -727,7 +807,7 @@ class TextSize():
         if not isinstance(exp, list) or len(exp) != 3:
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'textsize':
+        if exp[0] != "textsize":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -745,12 +825,13 @@ class TextSize():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        return f'{indents}(textsize {self.width} {self.height}){endline}'
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        return f"{indents}(textsize {self.width} {self.height}){endline}"
+
 
 @dataclass
-class Setup():
+class Setup:
     """The ``setup`` token defines the configuration information for the work sheet
 
     Documentation:
@@ -795,18 +876,25 @@ class Setup():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'setup':
+        if exp[0] != "setup":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp[1:]:
-            if item[0] == 'textsize': object.textSize = TextSize().from_sexpr(item)
-            if item[0] == 'linewidth': object.lineWidth = item[1]
-            if item[0] == 'textlinewidth': object.textLineWidth = item[1]
-            if item[0] == 'left_margin': object.leftMargin = item[1]
-            if item[0] == 'right_margin': object.rightMargin = item[1]
-            if item[0] == 'top_margin': object.topMargin = item[1]
-            if item[0] == 'bottom_margin': object.bottomMargin = item[1]
+            if item[0] == "textsize":
+                object.textSize = TextSize().from_sexpr(item)
+            if item[0] == "linewidth":
+                object.lineWidth = item[1]
+            if item[0] == "textlinewidth":
+                object.textLineWidth = item[1]
+            if item[0] == "left_margin":
+                object.leftMargin = item[1]
+            if item[0] == "right_margin":
+                object.rightMargin = item[1]
+            if item[0] == "top_margin":
+                object.topMargin = item[1]
+            if item[0] == "bottom_margin":
+                object.bottomMargin = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True):
@@ -819,20 +907,27 @@ class Setup():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
         # KiCad puts no spaces between tokens here
-        expression =  f'{indents}(setup {self.textSize.to_sexpr()}(linewidth {self.lineWidth})'
-        expression += f'(textlinewidth {self.textLineWidth})\n{indents}'
-        expression += f'(left_margin {self.leftMargin})(right_margin {self.rightMargin})'
-        expression += f'(top_margin {self.topMargin})(bottom_margin {self.bottomMargin})'
-        expression += f'){endline}'
+        expression = (
+            f"{indents}(setup {self.textSize.to_sexpr()}(linewidth {self.lineWidth})"
+        )
+        expression += f"(textlinewidth {self.textLineWidth})\n{indents}"
+        expression += (
+            f"(left_margin {self.leftMargin})(right_margin {self.rightMargin})"
+        )
+        expression += (
+            f"(top_margin {self.topMargin})(bottom_margin {self.bottomMargin})"
+        )
+        expression += f"){endline}"
 
         return expression
 
+
 @dataclass
-class WorkSheet():
+class WorkSheet:
     """The ``WorkSheet`` token defines a KiCad worksheet (.kicad_wks file)
 
     Documentation:
@@ -871,19 +966,27 @@ class WorkSheet():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'kicad_wks':
+        if exp[0] != "kicad_wks":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp[1:]:
-            if item[0] == 'version': object.version = item[1]
-            if item[0] == 'generator': object.generator = item[1]
-            if item[0] == 'setup': object.setup = Setup().from_sexpr(item)
-            if item[0] == 'rect': object.drawingObjects.append(Rect().from_sexpr(item))
-            if item[0] == 'line': object.drawingObjects.append(Line().from_sexpr(item))
-            if item[0] == 'polygon': object.drawingObjects.append(Polygon().from_sexpr(item))
-            if item[0] == 'tbtext': object.drawingObjects.append(TbText().from_sexpr(item))
-            if item[0] == 'bitmap': object.drawingObjects.append(Bitmap().from_sexpr(item))
+            if item[0] == "version":
+                object.version = item[1]
+            if item[0] == "generator":
+                object.generator = item[1]
+            if item[0] == "setup":
+                object.setup = Setup().from_sexpr(item)
+            if item[0] == "rect":
+                object.drawingObjects.append(Rect().from_sexpr(item))
+            if item[0] == "line":
+                object.drawingObjects.append(Line().from_sexpr(item))
+            if item[0] == "polygon":
+                object.drawingObjects.append(Polygon().from_sexpr(item))
+            if item[0] == "tbtext":
+                object.drawingObjects.append(TbText().from_sexpr(item))
+            if item[0] == "bitmap":
+                object.drawingObjects.append(Bitmap().from_sexpr(item))
         return object
 
     @classmethod
@@ -893,7 +996,7 @@ class WorkSheet():
 
         Args:
             - filepath (str): Path or path-like object that points to the file
-            - encoding (str, optional): Encoding of the input file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the input file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -905,7 +1008,7 @@ class WorkSheet():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             item = cls.from_sexpr(sexpr.parse_sexp(infile.read()))
             item.filePath = filepath
             return item
@@ -918,15 +1021,15 @@ class WorkSheet():
             WorkSheet: A empty worksheet
         """
         return cls(
-            version = KIUTILS_CREATE_NEW_VERSION_STR,
-            generator = KIUTILS_CREATE_NEW_GENERATOR_STR
+            version=KIUTILS_CREATE_NEW_VERSION_STR,
+            generator=KIUTILS_CREATE_NEW_GENERATOR_STR,
         )
 
-    def to_file(self, filepath = None):
+    def to_file(self, filepath=None):
         """Save the object to a file in S-Expression format
 
         Args:
-            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set, 
+            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set,
                                         the attribute ``self.filePath`` will be used instead.
 
         Raises:
@@ -937,7 +1040,7 @@ class WorkSheet():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w') as outfile:
+        with open(filepath, "w") as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent=0, newline=True):
@@ -950,13 +1053,13 @@ class WorkSheet():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(kicad_wks (version {self.version}) (generator {self.generator})\n'
-        expression += self.setup.to_sexpr(indent+2)
+        expression = f"{indents}(kicad_wks (version {self.version}) (generator {self.generator})\n"
+        expression += self.setup.to_sexpr(indent + 2)
         for item in self.drawingObjects:
-            expression += item.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression += item.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
 
         return expression

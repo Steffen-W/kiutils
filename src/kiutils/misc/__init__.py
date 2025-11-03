@@ -12,6 +12,6 @@ from .config import KIUTILS_CREATE_NEW_GENERATOR_STR, KIUTILS_CREATE_NEW_VERSION
 
 # Export list for controlled imports
 __all__ = [
-    'KIUTILS_CREATE_NEW_GENERATOR_STR',  # Default generator string for new files
-    'KIUTILS_CREATE_NEW_VERSION_STR'     # Default version string for new files
+    "KIUTILS_CREATE_NEW_GENERATOR_STR",  # Default generator string for new files
+    "KIUTILS_CREATE_NEW_VERSION_STR",  # Default version string for new files
 ]

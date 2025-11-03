@@ -16,14 +16,15 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
 from os import path
+from typing import List, Optional
 
 from kiutils.utils import sexpr
 from kiutils.utils.strings import dequote
 
+
 @dataclass
-class Constraint():
+class Constraint:
     """The ``Constraint`` token defines a design rule's constraint"""
 
     type: str = "clearance"
@@ -85,7 +86,7 @@ class Constraint():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'constraint':
+        if exp[0] != "constraint":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -93,9 +94,12 @@ class Constraint():
         for item in exp[2:]:
             if type(item) != type([]):
                 object.elements.append(item)
-            if item[0] == 'min': object.min = item[1]
-            if item[0] == 'opt': object.opt = item[1]
-            if item[0] == 'max': object.max = item[1]
+            if item[0] == "min":
+                object.min = item[1]
+            if item[0] == "opt":
+                object.opt = item[1]
+            if item[0] == "max":
+                object.max = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True):
@@ -108,19 +112,20 @@ class Constraint():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        min = f' (min "{dequote(self.min)}")' if self.min is not None else ''
-        opt = f' (opt "{dequote(self.opt)}")' if self.opt is not None else ''
-        max = f' (max "{dequote(self.max)}")' if self.max is not None else ''
+        min = f' (min "{dequote(self.min)}")' if self.min is not None else ""
+        opt = f' (opt "{dequote(self.opt)}")' if self.opt is not None else ""
+        max = f' (max "{dequote(self.max)}")' if self.max is not None else ""
 
-        elements = ' '+' '.join(self.elements) if (len(self.elements) > 0) else ''
+        elements = " " + " ".join(self.elements) if (len(self.elements) > 0) else ""
 
-        return f'{indents}(constraint {self.type}{min}{opt}{max}{elements}){endline}'
+        return f"{indents}(constraint {self.type}{min}{opt}{max}{elements}){endline}"
+
 
 @dataclass
-class Rule():
+class Rule:
     """The ``Rule`` token defines a custom design rule"""
 
     name: str = ""
@@ -160,16 +165,20 @@ class Rule():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'rule':
+        if exp[0] != "rule":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.name = exp[1]
         for item in exp[2:]:
-            if item[0] == 'constraint': object.constraints.append(Constraint().from_sexpr(item))
-            if item[0] == 'condition': object.condition = item[1]
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'severity': object.severity = item[1]
+            if item[0] == "constraint":
+                object.constraints.append(Constraint().from_sexpr(item))
+            if item[0] == "condition":
+                object.condition = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "severity":
+                object.severity = item[1]
         return object
 
     def to_sexpr(self, indent: int = 0):
@@ -181,21 +190,22 @@ class Rule():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
+        indents = " " * indent
 
         expression = f'{indents}(rule "{dequote(self.name)}"\n'
         if self.layer is not None:
             expression += f'{indents}  (layer "{dequote(self.layer)}")\n'
         for item in self.constraints:
-            expression += f'{indents}{item.to_sexpr(indent+2)}'
+            expression += f"{indents}{item.to_sexpr(indent+2)}"
         expression += f'{indents}  (condition "{dequote(self.condition)}")'
         if self.severity is not None:
-            expression += f'\n{indents}  (severity {dequote(self.severity)})'
-        expression += ')\n'
+            expression += f"\n{indents}  (severity {dequote(self.severity)})"
+        expression += ")\n"
         return expression
 
+
 @dataclass
-class DesignRules():
+class DesignRules:
     """The ``DesignRules`` token defines a set of custom design rules (`.kicad_dru` files)"""
 
     version: int = 1
@@ -228,13 +238,15 @@ class DesignRules():
         if not isinstance(exp[0], list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0][0] != 'version':
+        if exp[0][0] != "version":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'version': object.version = item[1]
-            if item[0] == 'rule': object.rules.append(Rule().from_sexpr(item))
+            if item[0] == "version":
+                object.version = item[1]
+            if item[0] == "rule":
+                object.rules.append(Rule().from_sexpr(item))
         return object
 
     @classmethod
@@ -244,7 +256,7 @@ class DesignRules():
 
         Args:
             - filepath (str): Path or path-like object that points to the file
-            - encoding (str, optional): Encoding of the input file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the input file. Defaults to None (platform
                                         dependent encoding).
         Raises:
             - Exception: If the given path is not a file
@@ -255,10 +267,10 @@ class DesignRules():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             # This dirty fix adds opening and closing brackets `(..)` to the read input to enable
             # the S-Expression parser to work for the DRU-format as well.
-            data = f'({infile.read()})'
+            data = f"({infile.read()})"
             item = cls.from_sexpr(sexpr.parse_sexp(data))
             item.filePath = filepath
             return item
@@ -272,13 +284,13 @@ class DesignRules():
         """
         return cls(version=1)
 
-    def to_file(self, filepath = None, encoding: Optional[str] = None):
+    def to_file(self, filepath=None, encoding: Optional[str] = None):
         """Save the object to a file in S-Expression format
 
         Args:
             - filepath (str, optional): Path-like string to the file. Defaults to None. If not set,
                                         the attribute ``self.filePath`` will be used instead.
-            - encoding (str, optional): Encoding of the output file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the output file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -289,7 +301,7 @@ class DesignRules():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w', encoding=encoding) as outfile:
+        with open(filepath, "w", encoding=encoding) as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent=0, newline=False):
@@ -302,14 +314,14 @@ class DesignRules():
         Returns:
             str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression = f'{indents}(version {self.version})\n'
+        expression = f"{indents}(version {self.version})\n"
 
         if len(self.rules):
-            expression += f'{indents}\n'
+            expression += f"{indents}\n"
             for rule in self.rules:
-                expression += f'{indents}{rule.to_sexpr(indent=indent)}'
+                expression += f"{indents}{rule.to_sexpr(indent=indent)}"
 
         return expression + endline

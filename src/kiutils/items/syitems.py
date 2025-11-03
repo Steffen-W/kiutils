@@ -20,11 +20,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from kiutils.items.common import Fill, Position, Stroke, Effects, Fill
+from kiutils.items.common import Effects, Fill, Position, Stroke
 from kiutils.utils.strings import dequote
 
+
 @dataclass
-class SyArc():
+class SyArc:
     """The ``arc`` token defines a graphical arc in a symbol definition.
 
     Documentation:
@@ -69,20 +70,26 @@ class SyArc():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'arc':
+        if exp[0] != "arc":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
 
         for item in exp:
             if isinstance(item, str):
-                if item == 'private': object.private = True
+                if item == "private":
+                    object.private = True
                 continue
-            if item[0] == 'start': object.start = Position().from_sexpr(item)
-            if item[0] == 'mid': object.mid = Position().from_sexpr(item)
-            if item[0] == 'end': object.end = Position().from_sexpr(item)
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
+            if item[0] == "start":
+                object.start = Position().from_sexpr(item)
+            if item[0] == "mid":
+                object.mid = Position().from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position().from_sexpr(item)
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 6, newline: bool = True) -> str:
@@ -95,22 +102,23 @@ class SyArc():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        startA = f' {self.start.angle}' if self.start.angle is not None else ''
-        midA = f' {self.mid.angle}' if self.mid.angle is not None else ''
-        endA = f' {self.end.angle}' if self.end.angle is not None else ''
-        private = ' private' if self.private else ''
+        startA = f" {self.start.angle}" if self.start.angle is not None else ""
+        midA = f" {self.mid.angle}" if self.mid.angle is not None else ""
+        endA = f" {self.end.angle}" if self.end.angle is not None else ""
+        private = " private" if self.private else ""
 
-        expression =  f'{indents}(arc{private} (start {self.start.X} {self.start.Y}{startA}) (mid {self.mid.X} {self.mid.Y}{midA}) (end {self.end.X} {self.end.Y}{endA})\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+        expression = f"{indents}(arc{private} (start {self.start.X} {self.start.Y}{startA}) (mid {self.mid.X} {self.mid.Y}{midA}) (end {self.end.X} {self.end.Y}{endA})\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyCircle():
+class SyCircle:
     """The ``circle`` token defines a graphical circle in a symbol definition.
 
     Documentation:
@@ -152,19 +160,24 @@ class SyCircle():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'circle':
+        if exp[0] != "circle":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
 
         for item in exp:
             if isinstance(item, str):
-                if item == 'private': object.private = True
+                if item == "private":
+                    object.private = True
                 continue
-            if item[0] == 'center': object.center = Position().from_sexpr(item)
-            if item[0] == 'radius': object.radius = item[1]
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
+            if item[0] == "center":
+                object.center = Position().from_sexpr(item)
+            if item[0] == "radius":
+                object.radius = item[1]
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 6, newline: bool = True) -> str:
@@ -177,18 +190,19 @@ class SyCircle():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        private = ' private' if self.private else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        private = " private" if self.private else ""
 
-        expression =  f'{indents}(circle{private} (center {self.center.X} {self.center.Y}) (radius {self.radius})\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+        expression = f"{indents}(circle{private} (center {self.center.X} {self.center.Y}) (radius {self.radius})\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyCurve():
+class SyCurve:
     """The ``curve`` token defines a graphical Qubic Bezier curve.
 
     Documentation:
@@ -221,14 +235,16 @@ class SyCurve():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'curve':
+        if exp[0] != "curve":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
-            if item[0] == 'pts':
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
+            if item[0] == "pts":
                 for point in item[1:]:
                     object.points.append(Position().from_sexpr(point))
         return object
@@ -243,21 +259,22 @@ class SyCurve():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(curve\n'
-        expression =  f'{indents}  (pts\n'
+        expression = f"{indents}(curve\n"
+        expression = f"{indents}  (pts\n"
         for point in self.points:
-            expression =  f'{indents}    (xy {point.X} {point.Y})\n'
-        expression =  f'{indents}  )\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression = f"{indents}    (xy {point.X} {point.Y})\n"
+        expression = f"{indents}  )\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyPolyLine():
+class SyPolyLine:
     """The ``polyline`` token defines one or more graphical lines that may or may not define a polygon.
 
     Documentation:
@@ -290,14 +307,16 @@ class SyPolyLine():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'polyline':
+        if exp[0] != "polyline":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
-            if item[0] == 'pts':
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
+            if item[0] == "pts":
                 for point in item[1:]:
                     object.points.append(Position().from_sexpr(point))
         return object
@@ -312,21 +331,22 @@ class SyPolyLine():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(polyline\n'
-        expression +=  f'{indents}  (pts\n'
+        expression = f"{indents}(polyline\n"
+        expression += f"{indents}  (pts\n"
         for point in self.points:
-            expression +=  f'{indents}    (xy {point.X} {point.Y})\n'
-        expression += f'{indents}  )\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression += f"{indents}    (xy {point.X} {point.Y})\n"
+        expression += f"{indents}  )\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyRect():
+class SyRect:
     """The ``rectangle`` token defines a graphical rectangle in a symbol definition.
 
     Documentation:
@@ -368,19 +388,24 @@ class SyRect():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'rectangle':
+        if exp[0] != "rectangle":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
 
         for item in exp:
             if isinstance(item, str):
-                if item == 'private': object.private = True
+                if item == "private":
+                    object.private = True
                 continue
-            if item[0] == 'start': object.start = Position().from_sexpr(item)
-            if item[0] == 'end': object.end = Position().from_sexpr(item)
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
+            if item[0] == "start":
+                object.start = Position().from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position().from_sexpr(item)
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 6, newline: bool = True) -> str:
@@ -393,18 +418,19 @@ class SyRect():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        private = ' private' if self.private else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        private = " private" if self.private else ""
 
-        expression =  f'{indents}(rectangle{private} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y})\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+        expression = f"{indents}(rectangle{private} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y})\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyText():
+class SyText:
     """The ``text`` token defines a graphical text in a symbol definition.
 
     Documentation:
@@ -437,14 +463,16 @@ class SyText():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'text':
+        if exp[0] != "text":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.text = exp[1]
         for item in exp[2:]:
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'effects': object.effects = Effects().from_sexpr(item)
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "effects":
+                object.effects = Effects().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 6, newline: bool = True) -> str:
@@ -457,18 +485,19 @@ class SyText():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        posA = f' {self.position.angle}' if self.position.angle is not None else ''
+        posA = f" {self.position.angle}" if self.position.angle is not None else ""
 
-        expression =  f'{indents}(text "{dequote(self.text)}" (at {self.position.X} {self.position.Y}{posA})\n'
-        expression += f'{indents}  {self.effects.to_sexpr()}'
-        expression += f'{indents}){endline}'
+        expression = f'{indents}(text "{dequote(self.text)}" (at {self.position.X} {self.position.Y}{posA})\n'
+        expression += f"{indents}  {self.effects.to_sexpr()}"
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SyTextBox():
+class SyTextBox:
     """The ``text_box`` token defines a text box inside a symbol
 
     Available since KiCad v7
@@ -522,7 +551,7 @@ class SyTextBox():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'text_box':
+        if exp[0] != "text_box":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -537,12 +566,18 @@ class SyTextBox():
             start_at = 2
 
         for item in exp[start_at:]:
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'size': object.size = Position().from_sexpr(item)
-            if item[0] == 'effects': object.effects = Effects().from_sexpr(item)
-            if item[0] == 'stroke': object.stroke = Stroke().from_sexpr(item)
-            if item[0] == 'fill': object.fill = Fill().from_sexpr(item)
-            if item[0] == 'uuid': object.uuid = item[1]
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "size":
+                object.size = Position().from_sexpr(item)
+            if item[0] == "effects":
+                object.effects = Effects().from_sexpr(item)
+            if item[0] == "stroke":
+                object.stroke = Stroke().from_sexpr(item)
+            if item[0] == "fill":
+                object.fill = Fill().from_sexpr(item)
+            if item[0] == "uuid":
+                object.uuid = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -555,18 +590,18 @@ class SyTextBox():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        posA = f' {self.position.angle}' if self.position.angle is not None else ''
-        private = ' private' if self.private else ''
+        posA = f" {self.position.angle}" if self.position.angle is not None else ""
+        private = " private" if self.private else ""
 
-        expression =  f'{indents}(text_box{private} "{dequote(self.text)}"\n'
-        expression += f'{indents}  (at {self.position.X} {self.position.Y}{posA}) (size {self.size.X} {self.size.Y})\n'
-        expression += self.stroke.to_sexpr(indent+2)
-        expression += self.fill.to_sexpr(indent+2)
-        expression += self.effects.to_sexpr(indent+2)
+        expression = f'{indents}(text_box{private} "{dequote(self.text)}"\n'
+        expression += f"{indents}  (at {self.position.X} {self.position.Y}{posA}) (size {self.size.X} {self.size.Y})\n"
+        expression += self.stroke.to_sexpr(indent + 2)
+        expression += self.fill.to_sexpr(indent + 2)
+        expression += self.effects.to_sexpr(indent + 2)
         if self.uuid is not None:
-            expression += f'{indents}  (uuid {self.uuid})\n'
-        expression += f'{indents}){endline}'
+            expression += f"{indents}  (uuid {self.uuid})\n"
+        expression += f"{indents}){endline}"
         return expression

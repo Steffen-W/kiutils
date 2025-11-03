@@ -16,13 +16,14 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import List, Optional
 
 from kiutils.items.common import Position
 from kiutils.utils.strings import dequote
 
+
 @dataclass
-class GeneralSettings():
+class GeneralSettings:
     """The ``general`` token define general information about the board
 
     Documentation:
@@ -49,12 +50,13 @@ class GeneralSettings():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'general':
+        if exp[0] != "general":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'thickness': object.thickness = item[1]
+            if item[0] == "thickness":
+                object.thickness = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -67,17 +69,17 @@ class GeneralSettings():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(general\n'
-        expression += f'{indents}  (thickness {self.thickness})\n'
-        expression += f'{indents}){endline}'
+        expression = f"{indents}(general\n"
+        expression += f"{indents}  (thickness {self.thickness})\n"
+        expression += f"{indents}){endline}"
         return expression
 
 
 @dataclass
-class LayerToken():
+class LayerToken:
     """Intermediate type used for the ``layers`` token in a board
 
     Documentation:
@@ -133,16 +135,16 @@ class LayerToken():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        username = f' "{dequote(self.userName)}"' if self.userName is not None else ''
+        username = f' "{dequote(self.userName)}"' if self.userName is not None else ""
 
         return f'{indents}({self.ordinal} "{dequote(self.name)}" {self.type}{username}){endline}'
 
 
 @dataclass
-class StackupSubLayer():
+class StackupSubLayer:
     """The ``StackupSubLayer`` token defines a sublayer used when stacking dielectrics in a PCB"""
 
     thickness: float = 0.1
@@ -178,18 +180,28 @@ class StackupSubLayer():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        mat = f' (material "{dequote(self.material)}")' if self.material is not None else ''
-        er = f' (epsilon_r {self.epsilonR})' if self.epsilonR is not None else ''
-        lt = f' (loss_tangent {self.lossTangent})' if self.lossTangent is not None else ''
+        mat = (
+            f' (material "{dequote(self.material)}")'
+            if self.material is not None
+            else ""
+        )
+        er = f" (epsilon_r {self.epsilonR})" if self.epsilonR is not None else ""
+        lt = (
+            f" (loss_tangent {self.lossTangent})"
+            if self.lossTangent is not None
+            else ""
+        )
 
-        return f'{indents}addsublayer (thickness {self.thickness}){mat}{er}{lt}{endline}'
+        return (
+            f"{indents}addsublayer (thickness {self.thickness}){mat}{er}{lt}{endline}"
+        )
 
 
 @dataclass
-class StackupLayer():
+class StackupLayer:
     """The ``layer`` token defines the stack up setting of a single layer in the board stack up
     settings.
 
@@ -202,7 +214,7 @@ class StackupLayer():
     or ``dielectric ID`` if it is dielectric layer"""
 
     # Not found in example project ...
-    #number: int = 0
+    # number: int = 0
     """The ``number`` attribute defines the stack order of the layer"""
 
     type: str = ""
@@ -246,7 +258,7 @@ class StackupLayer():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'layer':
+        if exp[0] != "layer":
             raise Exception("Expression does not have the correct type")
 
         parsingSublayer = False
@@ -256,7 +268,7 @@ class StackupLayer():
         for item in exp[2:]:
             if type(item) != type([]):
                 # Start parsing the layer's sublayer if the first sublayer token was found
-                if item == 'addsublayer':
+                if item == "addsublayer":
                     if parsingSublayer:
                         # When the ``addsublayer`` token was found a second time, the previously
                         # parsed sublayer will be appended to the list of sublayers
@@ -269,19 +281,29 @@ class StackupLayer():
 
             # Parse the tokens of StackupSubLayer for the current sublayer
             if parsingSublayer:
-                if item[0] == 'thickness': tempSublayer.thickness = item[1]
-                if item[0] == 'material': tempSublayer.material = item[1]
-                if item[0] == 'epsilon_r': tempSublayer.epsilonR = item[1]
-                if item[0] == 'loss_tangent': tempSublayer.lossTangent = item[1]
+                if item[0] == "thickness":
+                    tempSublayer.thickness = item[1]
+                if item[0] == "material":
+                    tempSublayer.material = item[1]
+                if item[0] == "epsilon_r":
+                    tempSublayer.epsilonR = item[1]
+                if item[0] == "loss_tangent":
+                    tempSublayer.lossTangent = item[1]
                 continue
 
             # Parse the normal tokens of StackupLayer token
-            if item[0] == 'type': object.type = item[1]
-            if item[0] == 'thickness': object.thickness = item[1]
-            if item[0] == 'material': object.material = item[1]
-            if item[0] == 'epsilon_r': object.epsilonR = item[1]
-            if item[0] == 'loss_tangent': object.lossTangent = item[1]
-            if item[0] == 'color': object.color = item[1]
+            if item[0] == "type":
+                object.type = item[1]
+            if item[0] == "thickness":
+                object.thickness = item[1]
+            if item[0] == "material":
+                object.material = item[1]
+            if item[0] == "epsilon_r":
+                object.epsilonR = item[1]
+            if item[0] == "loss_tangent":
+                object.lossTangent = item[1]
+            if item[0] == "color":
+                object.color = item[1]
 
         # Add the last parsed sublayer to the list, if any
         if parsingSublayer:
@@ -299,24 +321,35 @@ class StackupLayer():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        color = f' (color "{dequote(self.color)}")' if self.color is not None else ''
-        material = f' (material "{dequote(self.material)}")' if self.material is not None else ''
-        thickness = f' (thickness {self.thickness})' if self.thickness is not None else ''
-        epsilon_r = f' (epsilon_r {self.epsilonR})' if self.epsilonR is not None else ''
-        loss_tangent = f' (loss_tangent {self.lossTangent})' if self.lossTangent is not None else ''
+        color = f' (color "{dequote(self.color)}")' if self.color is not None else ""
+        material = (
+            f' (material "{dequote(self.material)}")'
+            if self.material is not None
+            else ""
+        )
+        thickness = (
+            f" (thickness {self.thickness})" if self.thickness is not None else ""
+        )
+        epsilon_r = f" (epsilon_r {self.epsilonR})" if self.epsilonR is not None else ""
+        loss_tangent = (
+            f" (loss_tangent {self.lossTangent})"
+            if self.lossTangent is not None
+            else ""
+        )
 
         expression = f'{indents}(layer "{dequote(self.name)}" (type "{self.type}"){color}{thickness}'
-        expression +=f'{material}{epsilon_r}{loss_tangent}'
+        expression += f"{material}{epsilon_r}{loss_tangent}"
         for layer in self.subLayers:
-            expression += f'\n{layer.to_sexpr(indent+2)}'
-        expression += f'){endline}'
+            expression += f"\n{layer.to_sexpr(indent+2)}"
+        expression += f"){endline}"
         return expression
 
+
 @dataclass
-class Stackup():
+class Stackup:
     """The ``stackup`` token defines the board stack up settings and is defined in the setup
     section.
 
@@ -364,17 +397,23 @@ class Stackup():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'stackup':
+        if exp[0] != "stackup":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'layer': object.layers.append(StackupLayer().from_sexpr(item))
-            if item[0] == 'copper_finish': object.copperFinish = item[1]
-            if item[0] == 'dielectric_constraints': object.dielectricContraints = item[1]
-            if item[0] == 'edge_connector': object.edgeConnector = item[1]
-            if item[0] == 'castellated_pads': object.castellatedPads = True
-            if item[0] == 'edge_plating': object.edgePlating = True
+            if item[0] == "layer":
+                object.layers.append(StackupLayer().from_sexpr(item))
+            if item[0] == "copper_finish":
+                object.copperFinish = item[1]
+            if item[0] == "dielectric_constraints":
+                object.dielectricContraints = item[1]
+            if item[0] == "edge_connector":
+                object.edgeConnector = item[1]
+            if item[0] == "castellated_pads":
+                object.castellatedPads = True
+            if item[0] == "edge_plating":
+                object.edgePlating = True
         return object
 
     def to_sexpr(self, indent=4, newline=True) -> str:
@@ -387,22 +426,30 @@ class Stackup():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(stackup\n'
+        expression = f"{indents}(stackup\n"
         for layer in self.layers:
-            expression += layer.to_sexpr(indent+2)
-        if self.copperFinish is not None:         expression += f'{indents}  (copper_finish "{dequote(self.copperFinish)}")\n'
-        if self.dielectricContraints is not None: expression += f'{indents}  (dielectric_constraints {self.dielectricContraints})\n'
-        if self.edgeConnector is not None:        expression += f'{indents}  (edge_connector {self.edgeConnector})\n'
-        if self.castellatedPads:                  expression += f'{indents}  (castellated_pads yes)\n'
-        if self.edgePlating:                      expression += f'{indents}  (edge_plating yes)\n'
-        expression += f'{indents}){endline}'
+            expression += layer.to_sexpr(indent + 2)
+        if self.copperFinish is not None:
+            expression += f'{indents}  (copper_finish "{dequote(self.copperFinish)}")\n'
+        if self.dielectricContraints is not None:
+            expression += (
+                f"{indents}  (dielectric_constraints {self.dielectricContraints})\n"
+            )
+        if self.edgeConnector is not None:
+            expression += f"{indents}  (edge_connector {self.edgeConnector})\n"
+        if self.castellatedPads:
+            expression += f"{indents}  (castellated_pads yes)\n"
+        if self.edgePlating:
+            expression += f"{indents}  (edge_plating yes)\n"
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class PlotSettings():
+class PlotSettings:
     """The ``pcbplotparams`` token defines the plotting and printing settings used for the last
     plot and is defined in the set up section.
 
@@ -556,45 +603,81 @@ class PlotSettings():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'pcbplotparams':
+        if exp[0] != "pcbplotparams":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'layerselection': object.layerSelection = item[1]
-            if item[0] == 'plot_on_all_layers_selection': object.plotOnAllLayersSelection = item[1]
-            if item[0] == 'disableapertmacros': object.disableApertMacros = True if item[1] == 'true' else False
-            if item[0] == 'usegerberextensions' : object.useGerberExtensions = True if item[1] == 'true' else False
-            if item[0] == 'usegerberattributes' : object.useGerberAttributes = True if item[1] == 'true' else False
-            if item[0] == 'usegerberadvancedattributes' : object.useGerberAdvancedAttributes = True if item[1] == 'true' else False
-            if item[0] == 'creategerberjobfile' : object.createGerberJobFile = True if item[1] == 'true' else False
-            if item[0] == 'dashed_line_dash_ratio': object.dashedLineDashRatio = item[1]
-            if item[0] == 'dashed_line_gap_ratio': object.dashedLineGapRatio = item[1]
-            if item[0] == 'svguseinch' : object.svgUseInch = True if item[1] == 'true' else False
-            if item[0] == 'svgprecision' : object.svgPrecision = item[1]
-            if item[0] == 'excludeedgelayer' : object.excludeEdgeLayer = True if item[1] == 'true' else False
-            if item[0] == 'plotframeref' : object.plotFameRef = True if item[1] == 'true' else False
-            if item[0] == 'viasonmask' : object.viasOnMask = True if item[1] == 'true' else False
-            if item[0] == 'mode' : object.mode = item[1]
-            if item[0] == 'useauxorigin' : object.useAuxOrigin = True if item[1] == 'true' else False
-            if item[0] == 'hpglpennumber' : object.hpglPenNumber = item[1]
-            if item[0] == 'hpglpenspeed' : object.hpglPenSpeed = item[1]
-            if item[0] == 'hpglpendiameter' : object.hpglPenDiameter = item[1]
-            if item[0] == 'dxfpolygonmode' : object.dxfPolygonMode = True if item[1] == 'true' else False
-            if item[0] == 'dxfimperialunits' : object.dxfImperialUnits = True if item[1] == 'true' else False
-            if item[0] == 'dxfusepcbnewfont' : object.dxfUsePcbnewFont = True if item[1] == 'true' else False
-            if item[0] == 'psnegative' : object.psNegative = True if item[1] == 'true' else False
-            if item[0] == 'psa4output' : object.psA4Output = True if item[1] == 'true' else False
-            if item[0] == 'plotreference' : object.plotReference = True if item[1] == 'true' else False
-            if item[0] == 'plotvalue' : object.plotValue = True if item[1] == 'true' else False
-            if item[0] == 'plotinvisibletext' : object.plotInvisibleText = True if item[1] == 'true' else False
-            if item[0] == 'sketchpadsonfab' : object.sketchPadsOnFab = True if item[1] == 'true' else False
-            if item[0] == 'subtractmaskfromsilk' : object.subtractMaskFromSilk = True if item[1] == 'true' else False
-            if item[0] == 'outputformat' : object.outputFormat = item[1]
-            if item[0] == 'mirror' : object.mirror = True if item[1] == 'true' else False
-            if item[0] == 'drillshape' : object.drillShape = item[1]
-            if item[0] == 'scaleselection' : object.scaleSelection = item[1]
-            if item[0] == 'outputdirectory' : object.outputDirectory = item[1]
+            if item[0] == "layerselection":
+                object.layerSelection = item[1]
+            if item[0] == "plot_on_all_layers_selection":
+                object.plotOnAllLayersSelection = item[1]
+            if item[0] == "disableapertmacros":
+                object.disableApertMacros = True if item[1] == "true" else False
+            if item[0] == "usegerberextensions":
+                object.useGerberExtensions = True if item[1] == "true" else False
+            if item[0] == "usegerberattributes":
+                object.useGerberAttributes = True if item[1] == "true" else False
+            if item[0] == "usegerberadvancedattributes":
+                object.useGerberAdvancedAttributes = (
+                    True if item[1] == "true" else False
+                )
+            if item[0] == "creategerberjobfile":
+                object.createGerberJobFile = True if item[1] == "true" else False
+            if item[0] == "dashed_line_dash_ratio":
+                object.dashedLineDashRatio = item[1]
+            if item[0] == "dashed_line_gap_ratio":
+                object.dashedLineGapRatio = item[1]
+            if item[0] == "svguseinch":
+                object.svgUseInch = True if item[1] == "true" else False
+            if item[0] == "svgprecision":
+                object.svgPrecision = item[1]
+            if item[0] == "excludeedgelayer":
+                object.excludeEdgeLayer = True if item[1] == "true" else False
+            if item[0] == "plotframeref":
+                object.plotFameRef = True if item[1] == "true" else False
+            if item[0] == "viasonmask":
+                object.viasOnMask = True if item[1] == "true" else False
+            if item[0] == "mode":
+                object.mode = item[1]
+            if item[0] == "useauxorigin":
+                object.useAuxOrigin = True if item[1] == "true" else False
+            if item[0] == "hpglpennumber":
+                object.hpglPenNumber = item[1]
+            if item[0] == "hpglpenspeed":
+                object.hpglPenSpeed = item[1]
+            if item[0] == "hpglpendiameter":
+                object.hpglPenDiameter = item[1]
+            if item[0] == "dxfpolygonmode":
+                object.dxfPolygonMode = True if item[1] == "true" else False
+            if item[0] == "dxfimperialunits":
+                object.dxfImperialUnits = True if item[1] == "true" else False
+            if item[0] == "dxfusepcbnewfont":
+                object.dxfUsePcbnewFont = True if item[1] == "true" else False
+            if item[0] == "psnegative":
+                object.psNegative = True if item[1] == "true" else False
+            if item[0] == "psa4output":
+                object.psA4Output = True if item[1] == "true" else False
+            if item[0] == "plotreference":
+                object.plotReference = True if item[1] == "true" else False
+            if item[0] == "plotvalue":
+                object.plotValue = True if item[1] == "true" else False
+            if item[0] == "plotinvisibletext":
+                object.plotInvisibleText = True if item[1] == "true" else False
+            if item[0] == "sketchpadsonfab":
+                object.sketchPadsOnFab = True if item[1] == "true" else False
+            if item[0] == "subtractmaskfromsilk":
+                object.subtractMaskFromSilk = True if item[1] == "true" else False
+            if item[0] == "outputformat":
+                object.outputFormat = item[1]
+            if item[0] == "mirror":
+                object.mirror = True if item[1] == "true" else False
+            if item[0] == "drillshape":
+                object.drillShape = item[1]
+            if item[0] == "scaleselection":
+                object.scaleSelection = item[1]
+            if item[0] == "outputdirectory":
+                object.outputDirectory = item[1]
         return object
 
     def to_sexpr(self, indent=4, newline=True) -> str:
@@ -607,55 +690,73 @@ class PlotSettings():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(pcbplotparams\n'
-        expression += f'{indents}  (layerselection {self.layerSelection})\n'
+        expression = f"{indents}(pcbplotparams\n"
+        expression += f"{indents}  (layerselection {self.layerSelection})\n"
         if self.plotOnAllLayersSelection is not None:
-            expression += f'{indents}  (plot_on_all_layers_selection {self.plotOnAllLayersSelection})\n'
-        expression += f'{indents}  (disableapertmacros {str(self.disableApertMacros).lower()})\n'
-        expression += f'{indents}  (usegerberextensions {str(self.useGerberExtensions).lower()})\n'
-        expression += f'{indents}  (usegerberattributes {str(self.useGerberAttributes).lower()})\n'
-        expression += f'{indents}  (usegerberadvancedattributes {str(self.useGerberAdvancedAttributes).lower()})\n'
-        expression += f'{indents}  (creategerberjobfile {str(self.createGerberJobFile).lower()})\n'
+            expression += f"{indents}  (plot_on_all_layers_selection {self.plotOnAllLayersSelection})\n"
+        expression += (
+            f"{indents}  (disableapertmacros {str(self.disableApertMacros).lower()})\n"
+        )
+        expression += f"{indents}  (usegerberextensions {str(self.useGerberExtensions).lower()})\n"
+        expression += f"{indents}  (usegerberattributes {str(self.useGerberAttributes).lower()})\n"
+        expression += f"{indents}  (usegerberadvancedattributes {str(self.useGerberAdvancedAttributes).lower()})\n"
+        expression += f"{indents}  (creategerberjobfile {str(self.createGerberJobFile).lower()})\n"
         if self.dashedLineDashRatio is not None:
-            expression += f'{indents}  (dashed_line_dash_ratio {float(self.dashedLineDashRatio):.6f})\n'
+            expression += f"{indents}  (dashed_line_dash_ratio {float(self.dashedLineDashRatio):.6f})\n"
         if self.dashedLineGapRatio is not None:
-            expression += f'{indents}  (dashed_line_gap_ratio {float(self.dashedLineGapRatio):.6f})\n'
+            expression += f"{indents}  (dashed_line_gap_ratio {float(self.dashedLineGapRatio):.6f})\n"
         if self.svgUseInch is not None:
-            expression += f'{indents}  (svguseinch {str(self.svgUseInch).lower()})\n'
-        expression += f'{indents}  (svgprecision {self.svgPrecision})\n'
+            expression += f"{indents}  (svguseinch {str(self.svgUseInch).lower()})\n"
+        expression += f"{indents}  (svgprecision {self.svgPrecision})\n"
         if self.excludeEdgeLayer is not None:
-            expression += f'{indents}  (excludeedgelayer {str(self.excludeEdgeLayer).lower()})\n'
-        expression += f'{indents}  (plotframeref {str(self.plotFameRef).lower()})\n'
-        expression += f'{indents}  (viasonmask {str(self.viasOnMask).lower()})\n'
-        expression += f'{indents}  (mode {self.mode})\n'
-        expression += f'{indents}  (useauxorigin false)\n'
-        expression += f'{indents}  (hpglpennumber {self.hpglPenNumber})\n'
-        expression += f'{indents}  (hpglpenspeed {self.hpglPenSpeed})\n'
-        expression += f'{indents}  (hpglpendiameter {float(self.hpglPenDiameter):.6f})\n'
-        expression += f'{indents}  (dxfpolygonmode {str(self.dxfPolygonMode).lower()})\n'
-        expression += f'{indents}  (dxfimperialunits {str(self.dxfImperialUnits).lower()})\n'
-        expression += f'{indents}  (dxfusepcbnewfont {str(self.dxfUsePcbnewFont).lower()})\n'
-        expression += f'{indents}  (psnegative {str(self.psNegative).lower()})\n'
-        expression += f'{indents}  (psa4output {str(self.psA4Output).lower()})\n'
-        expression += f'{indents}  (plotreference {str(self.plotReference).lower()})\n'
-        expression += f'{indents}  (plotvalue {str(self.plotValue).lower()})\n'
-        expression += f'{indents}  (plotinvisibletext {str(self.plotInvisibleText).lower()})\n'
-        expression += f'{indents}  (sketchpadsonfab {str(self.sketchPadsOnFab).lower()})\n'
-        expression += f'{indents}  (subtractmaskfromsilk {str(self.subtractMaskFromSilk).lower()})\n'
-        expression += f'{indents}  (outputformat {self.outputFormat})\n'
-        expression += f'{indents}  (mirror {str(self.mirror).lower()})\n'
-        expression += f'{indents}  (drillshape {self.drillShape})\n'
-        expression += f'{indents}  (scaleselection {self.scaleSelection})\n'
-        expression += f'{indents}  (outputdirectory "{dequote(self.outputDirectory)}")\n'
-        expression += f'{indents}){endline}'
+            expression += (
+                f"{indents}  (excludeedgelayer {str(self.excludeEdgeLayer).lower()})\n"
+            )
+        expression += f"{indents}  (plotframeref {str(self.plotFameRef).lower()})\n"
+        expression += f"{indents}  (viasonmask {str(self.viasOnMask).lower()})\n"
+        expression += f"{indents}  (mode {self.mode})\n"
+        expression += f"{indents}  (useauxorigin false)\n"
+        expression += f"{indents}  (hpglpennumber {self.hpglPenNumber})\n"
+        expression += f"{indents}  (hpglpenspeed {self.hpglPenSpeed})\n"
+        expression += (
+            f"{indents}  (hpglpendiameter {float(self.hpglPenDiameter):.6f})\n"
+        )
+        expression += (
+            f"{indents}  (dxfpolygonmode {str(self.dxfPolygonMode).lower()})\n"
+        )
+        expression += (
+            f"{indents}  (dxfimperialunits {str(self.dxfImperialUnits).lower()})\n"
+        )
+        expression += (
+            f"{indents}  (dxfusepcbnewfont {str(self.dxfUsePcbnewFont).lower()})\n"
+        )
+        expression += f"{indents}  (psnegative {str(self.psNegative).lower()})\n"
+        expression += f"{indents}  (psa4output {str(self.psA4Output).lower()})\n"
+        expression += f"{indents}  (plotreference {str(self.plotReference).lower()})\n"
+        expression += f"{indents}  (plotvalue {str(self.plotValue).lower()})\n"
+        expression += (
+            f"{indents}  (plotinvisibletext {str(self.plotInvisibleText).lower()})\n"
+        )
+        expression += (
+            f"{indents}  (sketchpadsonfab {str(self.sketchPadsOnFab).lower()})\n"
+        )
+        expression += f"{indents}  (subtractmaskfromsilk {str(self.subtractMaskFromSilk).lower()})\n"
+        expression += f"{indents}  (outputformat {self.outputFormat})\n"
+        expression += f"{indents}  (mirror {str(self.mirror).lower()})\n"
+        expression += f"{indents}  (drillshape {self.drillShape})\n"
+        expression += f"{indents}  (scaleselection {self.scaleSelection})\n"
+        expression += (
+            f'{indents}  (outputdirectory "{dequote(self.outputDirectory)}")\n'
+        )
+        expression += f"{indents}){endline}"
         return expression
 
 
 @dataclass
-class SetupData():
+class SetupData:
     """The setup token is used to store the current settings such as default item sizes and
     other options used by the board
 
@@ -711,20 +812,29 @@ class SetupData():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'setup':
+        if exp[0] != "setup":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'stackup': object.stackup = Stackup().from_sexpr(item)
-            if item[0] == 'pcbplotparams': object.plotSettings = PlotSettings().from_sexpr(item)
-            if item[0] == 'pad_to_mask_clearance': object.packToMaskClearance = item[1]
-            if item[0] == 'solder_mask_min_width': object.solderMaskMinWidth = item[1]
-            if item[0] == 'pad_to_paste_clearance': object.padToPasteClearance = item[1]
-            if item[0] == 'pad_to_paste_clearance_ratio': object.padToPasteClearanceRatio = item[1]
-            if item[0] == 'aux_axis_origin': object.auxAxisOrigin = Position().from_sexpr(item)
-            if item[0] == 'grid_origin': object.gridOrigin = Position().from_sexpr(item)
-            if item[0] == 'pcbplotparams': object.plotSettings = PlotSettings().from_sexpr(item)
+            if item[0] == "stackup":
+                object.stackup = Stackup().from_sexpr(item)
+            if item[0] == "pcbplotparams":
+                object.plotSettings = PlotSettings().from_sexpr(item)
+            if item[0] == "pad_to_mask_clearance":
+                object.packToMaskClearance = item[1]
+            if item[0] == "solder_mask_min_width":
+                object.solderMaskMinWidth = item[1]
+            if item[0] == "pad_to_paste_clearance":
+                object.padToPasteClearance = item[1]
+            if item[0] == "pad_to_paste_clearance_ratio":
+                object.padToPasteClearanceRatio = item[1]
+            if item[0] == "aux_axis_origin":
+                object.auxAxisOrigin = Position().from_sexpr(item)
+            if item[0] == "grid_origin":
+                object.gridOrigin = Position().from_sexpr(item)
+            if item[0] == "pcbplotparams":
+                object.plotSettings = PlotSettings().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -737,24 +847,37 @@ class SetupData():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(setup\n'
-        if self.stackup is not None:                  expression += self.stackup.to_sexpr(indent+2)
-        expression += f'{indents}  (pad_to_mask_clearance {self.packToMaskClearance})\n'
-        if self.solderMaskMinWidth is not None:       expression += f'{indents}  (solder_mask_min_width {self.solderMaskMinWidth})\n'
-        if self.padToPasteClearance is not None:      expression += f'{indents}  (pad_to_paste_clearance {self.padToPasteClearance})\n'
-        if self.padToPasteClearanceRatio is not None: expression += f'{indents}  (pad_to_paste_clearance_ratio {self.padToPasteClearanceRatio})\n'
-        if self.auxAxisOrigin is not None:            expression += f'{indents}  (aux_axis_origin {self.auxAxisOrigin.X} {self.auxAxisOrigin.Y})\n'
-        if self.gridOrigin is not None:               expression += f'{indents}  (grid_origin {self.gridOrigin.X} {self.gridOrigin.Y})\n'
-        if self.plotSettings is not None:             expression += self.plotSettings.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+        expression = f"{indents}(setup\n"
+        if self.stackup is not None:
+            expression += self.stackup.to_sexpr(indent + 2)
+        expression += f"{indents}  (pad_to_mask_clearance {self.packToMaskClearance})\n"
+        if self.solderMaskMinWidth is not None:
+            expression += (
+                f"{indents}  (solder_mask_min_width {self.solderMaskMinWidth})\n"
+            )
+        if self.padToPasteClearance is not None:
+            expression += (
+                f"{indents}  (pad_to_paste_clearance {self.padToPasteClearance})\n"
+            )
+        if self.padToPasteClearanceRatio is not None:
+            expression += f"{indents}  (pad_to_paste_clearance_ratio {self.padToPasteClearanceRatio})\n"
+        if self.auxAxisOrigin is not None:
+            expression += f"{indents}  (aux_axis_origin {self.auxAxisOrigin.X} {self.auxAxisOrigin.Y})\n"
+        if self.gridOrigin is not None:
+            expression += (
+                f"{indents}  (grid_origin {self.gridOrigin.X} {self.gridOrigin.Y})\n"
+            )
+        if self.plotSettings is not None:
+            expression += self.plotSettings.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
 
 @dataclass
-class Segment():
+class Segment:
     """The ``segment`` token defines a track segment in a KiCad board
 
     Documentation:
@@ -800,20 +923,27 @@ class Segment():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'segment':
+        if exp[0] != "segment":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'start': object.start = Position().from_sexpr(item)
-            if item[0] == 'end': object.end = Position().from_sexpr(item)
-            if item[0] == 'width': object.width = item[1]
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'net': object.net = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
+            if item[0] == "start":
+                object.start = Position().from_sexpr(item)
+            if item[0] == "end":
+                object.end = Position().from_sexpr(item)
+            if item[0] == "width":
+                object.width = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "net":
+                object.net = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -826,14 +956,15 @@ class Segment():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        locked = ' locked' if self.locked else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        locked = " locked" if self.locked else ""
 
         return f'{indents}(segment{locked} (start {self.start.X} {self.start.Y}) (end {self.end.X} {self.end.Y}) (width {self.width}) (layer "{dequote(self.layer)}") (net {self.net}) (tstamp {self.tstamp})){endline}'
 
+
 @dataclass
-class Via():
+class Via:
     """The ``via`` token defines a track via in a KiCad board
 
     Documentation:
@@ -893,26 +1024,36 @@ class Via():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'via':
+        if exp[0] != "via":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
-                if item == 'micro' or item == 'blind': object.type = item
+                if item == "locked":
+                    object.locked = True
+                if item == "micro" or item == "blind":
+                    object.type = item
                 continue
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'size': object.size = item[1]
-            if item[0] == 'drill': object.drill = item[1]
-            if item[0] == 'layers':
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "size":
+                object.size = item[1]
+            if item[0] == "drill":
+                object.drill = item[1]
+            if item[0] == "layers":
                 for layer in item[1:]:
                     object.layers.append(layer)
-            if item[0] == 'remove_unused_layers': object.removeUnusedLayers = True
-            if item[0] == 'keep_end_layers': object.keepEndLayers = True
-            if item[0] == 'free': object.free = True
-            if item[0] == 'net': object.net = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
+            if item[0] == "remove_unused_layers":
+                object.removeUnusedLayers = True
+            if item[0] == "keep_end_layers":
+                object.keepEndLayers = True
+            if item[0] == "free":
+                object.free = True
+            if item[0] == "net":
+                object.net = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -925,24 +1066,25 @@ class Via():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        type = f' {self.type}' if self.type is not None else ''
-        locked = f' locked' if self.locked else ''
+        type = f" {self.type}" if self.type is not None else ""
+        locked = f" locked" if self.locked else ""
 
-        layers = ''
+        layers = ""
         for layer in self.layers:
             layers += f' "{dequote(layer)}"'
-        rum = f' (remove_unused_layers)' if self.removeUnusedLayers else ''
-        kel = f' (keep_end_layers)' if self.keepEndLayers else ''
-        free = f' (free)' if self.free else ''
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
+        rum = f" (remove_unused_layers)" if self.removeUnusedLayers else ""
+        kel = f" (keep_end_layers)" if self.keepEndLayers else ""
+        free = f" (free)" if self.free else ""
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
-        return f'{indents}(via{type}{locked} (at {self.position.X} {self.position.Y}) (size {self.size}) (drill {self.drill}) (layers{layers}){rum}{kel}{free} (net {self.net}){tstamp}){endline}'
+        return f"{indents}(via{type}{locked} (at {self.position.X} {self.position.Y}) (size {self.size}) (drill {self.drill}) (layers{layers}){rum}{kel}{free} (net {self.net}){tstamp}){endline}"
+
 
 @dataclass
-class Arc():
+class Arc:
     """The ``arc`` token defines a track arc, which will be generated when using the length-matching
     feature on differential pairs.
 
@@ -992,21 +1134,29 @@ class Arc():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'arc':
+        if exp[0] != "arc":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
                 continue
-            if item[0] == 'start': object.start = Position().from_sexpr(item)
-            elif item[0] == 'mid': object.mid = Position().from_sexpr(item)
-            elif item[0] == 'end': object.end = Position().from_sexpr(item)
-            elif item[0] == 'width': object.width = item[1]
-            elif item[0] == 'layer': object.layer = item[1]
-            elif item[0] == 'net': object.net = item[1]
-            elif item[0] == 'tstamp': object.tstamp = item[1]
+            if item[0] == "start":
+                object.start = Position().from_sexpr(item)
+            elif item[0] == "mid":
+                object.mid = Position().from_sexpr(item)
+            elif item[0] == "end":
+                object.end = Position().from_sexpr(item)
+            elif item[0] == "width":
+                object.width = item[1]
+            elif item[0] == "layer":
+                object.layer = item[1]
+            elif item[0] == "net":
+                object.net = item[1]
+            elif item[0] == "tstamp":
+                object.tstamp = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -1019,21 +1169,23 @@ class Arc():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        locked = f' locked' if self.locked else ''
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
+        locked = f" locked" if self.locked else ""
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
-        expression = f'{indents}(arc{locked} (start {self.start.X} {self.start.Y}) '
-        expression += f'(mid {self.mid.X} {self.mid.Y}) (end {self.end.X} {self.end.Y}) '
+        expression = f"{indents}(arc{locked} (start {self.start.X} {self.start.Y}) "
+        expression += (
+            f"(mid {self.mid.X} {self.mid.Y}) (end {self.end.X} {self.end.Y}) "
+        )
         expression += f'(width {self.width}) (layer "{dequote(self.layer)}") '
-        expression += f'(net {self.net}){tstamp}){endline}'
+        expression += f"(net {self.net}){tstamp}){endline}"
         return expression
 
 
 @dataclass
-class Target():
+class Target:
     """The ``target`` token defines a target marker on the PCB
 
     Documentation:
@@ -1075,17 +1227,22 @@ class Target():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'target':
+        if exp[0] != "target":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.type = exp[1]
         for item in exp[2:]:
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'size': object.size = item[1]
-            if item[0] == 'width': object.width = item[1]
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "size":
+                object.size = item[1]
+            if item[0] == "width":
+                object.width = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -1098,7 +1255,7 @@ class Target():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
         return f'{indents}(target {self.type} (at {self.position.X} {self.position.Y}) (size {self.size}) (width {self.width}) (layer "{self.layer}") (tstamp {self.tstamp})){endline}'

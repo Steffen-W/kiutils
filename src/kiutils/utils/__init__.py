@@ -16,7 +16,7 @@ from .strings import dequote, remove_prefix
 
 # Export list for controlled imports
 __all__ = [
-    'sexpr',           # S-Expression parsing module
-    'dequote',         # Remove quotes from strings
-    'remove_prefix'    # Remove prefix from strings
+    "sexpr",  # S-Expression parsing module
+    "dequote",  # Remove quotes from strings
+    "remove_prefix",  # Remove prefix from strings
 ]

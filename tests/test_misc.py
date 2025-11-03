@@ -9,11 +9,12 @@ License identifier:
 
 import unittest
 from os import path
+
 from kiutils.schematic import Schematic
+from tests.testfunctions import TEST_BASE, prepare_test, to_file_and_compare
 
-from tests.testfunctions import to_file_and_compare, prepare_test, TEST_BASE
+MISC_BASE = path.join(TEST_BASE, "misc")
 
-MISC_BASE = path.join(TEST_BASE, 'misc')
 
 class Tests_Misc(unittest.TestCase):
     """Misc test cases"""
@@ -29,7 +30,9 @@ class Tests_Misc(unittest.TestCase):
         Related issues:
             - [Pull request 73](https://github.com/mvnmgrx/kiutils/pull/73)
         """
-        self.testData.pathToTestFile = path.join(MISC_BASE, 'test_quotesAndBackslashInSexpr')
+        self.testData.pathToTestFile = path.join(
+            MISC_BASE, "test_quotesAndBackslashInSexpr"
+        )
         self.testData.compareToTestFile = True
         libtable = Schematic().from_file(self.testData.pathToTestFile)
         self.assertTrue(to_file_and_compare(libtable, self.testData))

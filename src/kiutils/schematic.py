@@ -16,17 +16,21 @@ Documentation taken from:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List, Union
 from os import path
+from typing import List, Optional, Union
 
 from kiutils.items.common import Image, PageSettings, TitleBlock
 from kiutils.items.schitems import *
+from kiutils.misc.config import (
+    KIUTILS_CREATE_NEW_GENERATOR_STR,
+    KIUTILS_CREATE_NEW_VERSION_STR,
+)
 from kiutils.symbol import Symbol
 from kiutils.utils import sexpr
-from kiutils.misc.config import KIUTILS_CREATE_NEW_GENERATOR_STR, KIUTILS_CREATE_NEW_VERSION_STR
+
 
 @dataclass
-class Schematic():
+class Schematic:
     """The ``schematic`` token represents a KiCad schematic as defined by the schematic file format
 
     Documenatation:
@@ -131,42 +135,68 @@ class Schematic():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'kicad_sch':
+        if exp[0] != "kicad_sch":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'version': object.version = item[1]
-            if item[0] == 'generator': object.generator = item[1]
-            if item[0] == 'uuid': object.uuid = item[1]
-            if item[0] == 'paper': object.paper = PageSettings().from_sexpr(item)
-            if item[0] == 'title_block': object.titleBlock = TitleBlock().from_sexpr(item)
-            if item[0] == 'lib_symbols':
+            if item[0] == "version":
+                object.version = item[1]
+            if item[0] == "generator":
+                object.generator = item[1]
+            if item[0] == "uuid":
+                object.uuid = item[1]
+            if item[0] == "paper":
+                object.paper = PageSettings().from_sexpr(item)
+            if item[0] == "title_block":
+                object.titleBlock = TitleBlock().from_sexpr(item)
+            if item[0] == "lib_symbols":
                 for symbol in item[1:]:
                     object.libSymbols.append(Symbol().from_sexpr(symbol))
-            if item[0] == 'junction': object.junctions.append(Junction().from_sexpr(item))
-            if item[0] == 'no_connect': object.noConnects.append(NoConnect().from_sexpr(item))
-            if item[0] == 'bus_entry': object.busEntries.append(BusEntry().from_sexpr(item))
-            if item[0] == 'bus_alias': object.busAliases.append(BusAlias().from_sexpr(item))
-            if item[0] == 'wire': object.graphicalItems.append(Connection().from_sexpr(item))
-            if item[0] == 'bus': object.graphicalItems.append(Connection().from_sexpr(item))
-            if item[0] == 'polyline': object.graphicalItems.append(PolyLine().from_sexpr(item))
-            if item[0] == 'arc': object.shapes.append(Arc.from_sexpr(item))
-            if item[0] == 'circle': object.shapes.append(Circle.from_sexpr(item))
-            if item[0] == 'rectangle': object.shapes.append(Rectangle.from_sexpr(item))
-            if item[0] == 'image': object.images.append(Image().from_sexpr(item))
-            if item[0] == 'text': object.texts.append(Text().from_sexpr(item))
-            if item[0] == 'text_box': object.textBoxes.append(TextBox().from_sexpr(item))
-            if item[0] == 'label': object.labels.append(LocalLabel().from_sexpr(item))
-            if item[0] == 'global_label': object.globalLabels.append(GlobalLabel().from_sexpr(item))
-            if item[0] == 'hierarchical_label': object.hierarchicalLabels.append(HierarchicalLabel().from_sexpr(item))
-            if item[0] == 'netclass_flag': object.netclassFlags.append(NetclassFlag.from_sexpr(item))
-            if item[0] == 'symbol': object.schematicSymbols.append(SchematicSymbol().from_sexpr(item))
-            if item[0] == 'sheet': object.sheets.append(HierarchicalSheet().from_sexpr(item))
-            if item[0] == 'sheet_instances':
+            if item[0] == "junction":
+                object.junctions.append(Junction().from_sexpr(item))
+            if item[0] == "no_connect":
+                object.noConnects.append(NoConnect().from_sexpr(item))
+            if item[0] == "bus_entry":
+                object.busEntries.append(BusEntry().from_sexpr(item))
+            if item[0] == "bus_alias":
+                object.busAliases.append(BusAlias().from_sexpr(item))
+            if item[0] == "wire":
+                object.graphicalItems.append(Connection().from_sexpr(item))
+            if item[0] == "bus":
+                object.graphicalItems.append(Connection().from_sexpr(item))
+            if item[0] == "polyline":
+                object.graphicalItems.append(PolyLine().from_sexpr(item))
+            if item[0] == "arc":
+                object.shapes.append(Arc.from_sexpr(item))
+            if item[0] == "circle":
+                object.shapes.append(Circle.from_sexpr(item))
+            if item[0] == "rectangle":
+                object.shapes.append(Rectangle.from_sexpr(item))
+            if item[0] == "image":
+                object.images.append(Image().from_sexpr(item))
+            if item[0] == "text":
+                object.texts.append(Text().from_sexpr(item))
+            if item[0] == "text_box":
+                object.textBoxes.append(TextBox().from_sexpr(item))
+            if item[0] == "label":
+                object.labels.append(LocalLabel().from_sexpr(item))
+            if item[0] == "global_label":
+                object.globalLabels.append(GlobalLabel().from_sexpr(item))
+            if item[0] == "hierarchical_label":
+                object.hierarchicalLabels.append(HierarchicalLabel().from_sexpr(item))
+            if item[0] == "netclass_flag":
+                object.netclassFlags.append(NetclassFlag.from_sexpr(item))
+            if item[0] == "symbol":
+                object.schematicSymbols.append(SchematicSymbol().from_sexpr(item))
+            if item[0] == "sheet":
+                object.sheets.append(HierarchicalSheet().from_sexpr(item))
+            if item[0] == "sheet_instances":
                 for instance in item[1:]:
-                    object.sheetInstances.append(HierarchicalSheetInstance().from_sexpr(instance))
-            if item[0] == 'symbol_instances':
+                    object.sheetInstances.append(
+                        HierarchicalSheetInstance().from_sexpr(instance)
+                    )
+            if item[0] == "symbol_instances":
                 for instance in item[1:]:
                     object.symbolInstances.append(SymbolInstance().from_sexpr(instance))
         return object
@@ -178,7 +208,7 @@ class Schematic():
 
         Args:
             - filepath (str): Path or path-like object that points to the file
-            - encoding (str, optional): Encoding of the input file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the input file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -190,7 +220,7 @@ class Schematic():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             item = cls.from_sexpr(sexpr.parse_sexp(infile.read()))
             item.filePath = filepath
             return item
@@ -203,19 +233,21 @@ class Schematic():
             - Schematic: Empty schematic
         """
         schematic = cls(
-            version = KIUTILS_CREATE_NEW_VERSION_STR,
-            generator = KIUTILS_CREATE_NEW_GENERATOR_STR
+            version=KIUTILS_CREATE_NEW_VERSION_STR,
+            generator=KIUTILS_CREATE_NEW_GENERATOR_STR,
         )
-        schematic.sheetInstances.append(HierarchicalSheetInstance(instancePath='/', page='1'))
+        schematic.sheetInstances.append(
+            HierarchicalSheetInstance(instancePath="/", page="1")
+        )
         return schematic
 
-    def to_file(self, filepath = None, encoding: Optional[str] = None):
+    def to_file(self, filepath=None, encoding: Optional[str] = None):
         """Save the object to a file in S-Expression format
 
         Args:
-            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set, 
+            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set,
                                         the attribute ``self.filePath`` will be used instead.
-            - encoding (str, optional): Encoding of the output file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the output file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -226,7 +258,7 @@ class Schematic():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w', encoding=encoding) as outfile:
+        with open(filepath, "w", encoding=encoding) as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent=0, newline=True) -> str:
@@ -239,113 +271,113 @@ class Schematic():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(kicad_sch (version {self.version}) (generator {self.generator})\n'
+        expression = f"{indents}(kicad_sch (version {self.version}) (generator {self.generator})\n"
         if self.uuid is not None:
-            expression += f'\n{indents}  (uuid {self.uuid})\n\n'
-        expression += f'{self.paper.to_sexpr(indent+2)}'
+            expression += f"\n{indents}  (uuid {self.uuid})\n\n"
+        expression += f"{self.paper.to_sexpr(indent+2)}"
         if self.titleBlock is not None:
-            expression += f'\n{self.titleBlock.to_sexpr(indent+2)}'
+            expression += f"\n{self.titleBlock.to_sexpr(indent+2)}"
 
         if self.libSymbols:
-            expression += f'\n{indents}  (lib_symbols'
+            expression += f"\n{indents}  (lib_symbols"
             for item in self.libSymbols:
-                expression += '\n'
-                expression += item.to_sexpr(indent+4)
-            expression += f'{indents}  )\n'
+                expression += "\n"
+                expression += item.to_sexpr(indent + 4)
+            expression += f"{indents}  )\n"
         else:
-            expression += f'{indents}  (lib_symbols)\n'
+            expression += f"{indents}  (lib_symbols)\n"
 
         if self.junctions:
-            expression += '\n'
+            expression += "\n"
             for item in self.junctions:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.noConnects:
-            expression += '\n'
+            expression += "\n"
             for item in self.noConnects:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.busEntries:
-            expression += '\n'
+            expression += "\n"
             for item in self.busEntries:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.busAliases:
-            expression += '\n'
+            expression += "\n"
             for item in self.busAliases:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.graphicalItems:
-            expression += '\n'
+            expression += "\n"
             for item in self.graphicalItems:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.shapes:
-            expression += '\n'
+            expression += "\n"
             for item in self.shapes:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.images:
-            expression += '\n'
+            expression += "\n"
             for item in self.images:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.textBoxes:
-            expression += '\n'
+            expression += "\n"
             for item in self.textBoxes:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.texts:
-            expression += '\n'
+            expression += "\n"
             for item in self.texts:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.labels:
-            expression += '\n'
+            expression += "\n"
             for item in self.labels:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.globalLabels:
-            expression += '\n'
+            expression += "\n"
             for item in self.globalLabels:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.hierarchicalLabels:
-            expression += '\n'
+            expression += "\n"
             for item in self.hierarchicalLabels:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.netclassFlags:
-            expression += '\n'
+            expression += "\n"
             for item in self.netclassFlags:
-                expression += item.to_sexpr(indent+2)
+                expression += item.to_sexpr(indent + 2)
 
         if self.schematicSymbols:
             for item in self.schematicSymbols:
-                expression += '\n'
-                expression += item.to_sexpr(indent+2)
+                expression += "\n"
+                expression += item.to_sexpr(indent + 2)
 
         if self.sheets:
             for item in self.sheets:
-                expression += '\n'
-                expression += item.to_sexpr(indent+2)
+                expression += "\n"
+                expression += item.to_sexpr(indent + 2)
 
         if self.sheetInstances:
-            expression += '\n'
-            expression += '  (sheet_instances\n'
+            expression += "\n"
+            expression += "  (sheet_instances\n"
             for item in self.sheetInstances:
-                expression += item.to_sexpr(indent+4)
-            expression += '  )\n'
+                expression += item.to_sexpr(indent + 4)
+            expression += "  )\n"
 
         if self.symbolInstances:
-            expression += '\n'
-            expression += '  (symbol_instances\n'
+            expression += "\n"
+            expression += "  (symbol_instances\n"
             for item in self.symbolInstances:
-                expression += item.to_sexpr(indent+4)
-            expression += '  )\n'
+                expression += item.to_sexpr(indent + 4)
+            expression += "  )\n"
 
-        expression += f'{indents}){endline}'
+        expression += f"{indents}){endline}"
         return expression

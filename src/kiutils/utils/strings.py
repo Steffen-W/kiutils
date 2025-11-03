@@ -10,6 +10,7 @@ Major changes:
     28.02.2022 - created
 """
 
+
 def dequote(input: str) -> str:
     """Escapes double-quotes in a string using a backslash
 
@@ -19,7 +20,7 @@ def dequote(input: str) -> str:
     Returns:
         - str: String with replaced double-quotes
     """
-    return str(input).replace("\"", "\\\"")
+    return str(input).replace('"', '\\"')
 
 
 def remove_prefix(input: str, prefix: str) -> str:
@@ -33,4 +34,4 @@ def remove_prefix(input: str, prefix: str) -> str:
     Returns:
         - str: String with removed prefix, or the ``input`` string as is, if the prefix was not found
     """
-    return input[len(prefix):] if input.startswith(prefix) else input
+    return input[len(prefix) :] if input.startswith(prefix) else input

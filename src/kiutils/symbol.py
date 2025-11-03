@@ -14,19 +14,20 @@ Documentation taken from:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional, List
-from os import path
 import re
+from dataclasses import dataclass, field
+from os import path
+from typing import List, Optional
 
-from kiutils.items.common import Effects, Position, Property, Font
+from kiutils.items.common import Effects, Font, Position, Property
 from kiutils.items.syitems import *
+from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
 from kiutils.utils import sexpr
 from kiutils.utils.strings import dequote
-from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
+
 
 @dataclass
-class SymbolAlternativePin():
+class SymbolAlternativePin:
     pinName: str = ""
     """The ``pinName`` token defines the name of the alternative pin function"""
 
@@ -55,7 +56,7 @@ class SymbolAlternativePin():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'alternate':
+        if exp[0] != "alternate":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -74,13 +75,14 @@ class SymbolAlternativePin():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
         return f'{indents}(alternate "{dequote(self.pinName)}" {self.electricalType} {self.graphicalStyle}){endline}'
 
+
 @dataclass
-class SymbolPin():
+class SymbolPin:
     """The ``pin`` token defines a pin in a symbol definition.
 
     Documentation:
@@ -116,7 +118,7 @@ class SymbolPin():
     """The optional ``numberEffects`` token define how the pin's number is displayed. This token is
     mandatory for KiCad v6 and was made optional since KiCad v7."""
 
-    hide: bool = False      # Missing in documentation
+    hide: bool = False  # Missing in documentation
     """The 'hide' token defines if the pin should be hidden"""
 
     alternatePins: List[SymbolAlternativePin] = field(default_factory=list)
@@ -139,7 +141,7 @@ class SymbolPin():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'pin':
+        if exp[0] != "pin":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -147,19 +149,24 @@ class SymbolPin():
         object.graphicalStyle = exp[2]
         for item in exp[3:]:
             if type(item) != type([]):
-                if item == 'hide': object.hide = True
-                else: continue
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'length': object.length = item[1]
-            if item[0] == 'name':
+                if item == "hide":
+                    object.hide = True
+                else:
+                    continue
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "length":
+                object.length = item[1]
+            if item[0] == "name":
                 object.name = item[1]
                 if len(item) > 2:
                     object.nameEffects = Effects().from_sexpr(item[2])
-            if item[0] == 'number':
+            if item[0] == "number":
                 object.number = item[1]
                 if len(item) > 2:
                     object.numberEffects = Effects().from_sexpr(item[2])
-            if item[0] == 'alternate': object.alternatePins.append(SymbolAlternativePin().from_sexpr(item))
+            if item[0] == "alternate":
+                object.alternatePins.append(SymbolAlternativePin().from_sexpr(item))
         return object
 
     def to_sexpr(self, indent: int = 4, newline: bool = True) -> str:
@@ -172,43 +179,56 @@ class SymbolPin():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         newLineAdded = False
 
-        hide = ' hide' if self.hide else ''
-        posA = f' {self.position.angle}' if self.position.angle is not None else ''
-        nameEffects = f' {self.nameEffects.to_sexpr(newline=False)}' if self.nameEffects is not None else ''
-        numberEffects = f' {self.numberEffects.to_sexpr(newline=False)}' if self.numberEffects is not None else ''
+        hide = " hide" if self.hide else ""
+        posA = f" {self.position.angle}" if self.position.angle is not None else ""
+        nameEffects = (
+            f" {self.nameEffects.to_sexpr(newline=False)}"
+            if self.nameEffects is not None
+            else ""
+        )
+        numberEffects = (
+            f" {self.numberEffects.to_sexpr(newline=False)}"
+            if self.numberEffects is not None
+            else ""
+        )
 
-        expression =  f'{indents}(pin {self.electricalType} {self.graphicalStyle} (at {self.position.X} {self.position.Y}{posA}) (length {self.length}){hide}'
-        
-        # Since KiCad v7 nightly: Missing name and number effects print both other tokens into 
+        expression = f"{indents}(pin {self.electricalType} {self.graphicalStyle} (at {self.position.X} {self.position.Y}{posA}) (length {self.length}){hide}"
+
+        # Since KiCad v7 nightly: Missing name and number effects print both other tokens into
         # the same line.
         # Constrained in: schematic/since_v7/test_symbolPinOptionalTokens
         if self.nameEffects is None and self.numberEffects is None:
-            expression += f' (name "{dequote(self.name)}") (number "{dequote(self.number)}")'
+            expression += (
+                f' (name "{dequote(self.name)}") (number "{dequote(self.number)}")'
+            )
         else:
             expression += f'\n{indents}  (name "{dequote(self.name)}"{nameEffects})\n'
-            expression += f'{indents}  (number "{dequote(self.number)}"{numberEffects})\n'
+            expression += (
+                f'{indents}  (number "{dequote(self.number)}"{numberEffects})\n'
+            )
             newLineAdded = True
 
         # Alternative pins always generate a line break
         if self.alternatePins:
             if not newLineAdded:
-                expression += '\n' 
+                expression += "\n"
             newLineAdded = True
             for alternativePin in self.alternatePins:
-                expression += alternativePin.to_sexpr(indent+2)
+                expression += alternativePin.to_sexpr(indent + 2)
 
         if newLineAdded:
-            expression += f'{indents}){endline}'
+            expression += f"{indents}){endline}"
         else:
-            expression += f'){endline}'
+            expression += f"){endline}"
         return expression
 
+
 @dataclass
-class Symbol():
+class Symbol:
     """The ``symbol`` token defines a symbol or sub-unit of a parent symbol. There can be zero or more
     ``symbol`` tokens in a symbol library file.
 
@@ -217,15 +237,16 @@ class Symbol():
     """
 
     """Each symbol must have """
+
     @property
     def libId(self) -> str:
         """The ``lib_id`` token defines a unique "LIBRARY_ID" for each top level symbol in the
         library or a unique "UNIT_ID" for each unit embedded in a parent symbol. Library identifiers
         are only valid it top level symbols and unit identifiers are on valid as unit symbols inside
-        a parent symbol. 
-        
+        a parent symbol.
+
         The following conventions apply:
-            - "LIBRARY_ID" (top-level symbol): ``[<libraryNickname>:]<entryName>`` (the library 
+            - "LIBRARY_ID" (top-level symbol): ``[<libraryNickname>:]<entryName>`` (the library
               nickname part is optional here)
             - "UNIT_ID" (child symbol): ``<entryName>_<unitId>_<styleId>``
 
@@ -238,23 +259,23 @@ class Symbol():
             - If the ``libraryNickname`` is ``None``: ``<entryName>`` or ``<entryName>_<unitId>_<styleId>``,
               depending if these tokens are set.
         """
-        if (self.unitId is not None and self.styleId is not None):
+        if self.unitId is not None and self.styleId is not None:
             unit_style_ids = f"_{self.unitId}_{self.styleId}"
         else:
             unit_style_ids = ""
 
         if self.libraryNickname:
-            return f'{self.libraryNickname}:{self.entryName}'
+            return f"{self.libraryNickname}:{self.entryName}"
         else:
-            return f'{self.entryName}{unit_style_ids}'
+            return f"{self.entryName}{unit_style_ids}"
 
     @libId.setter
     def libId(self, symbol_id: str):
         """Sets the ``lib_id`` token and parses its contents into the ``libraryNickname``,
-        ``entryName``, ``unitId`` and ``styleId`` token. 
+        ``entryName``, ``unitId`` and ``styleId`` token.
 
         See self.libId property description for more information.
-        
+
         Args:
             - symbol_id (str): The symbol id in the following format: ``<libraryNickname>:<entryName>``,
               ``<entryName>_<unitId>_<styleId>`` or only ``<entryName>``, depending on if the symbol
@@ -272,7 +293,9 @@ class Symbol():
             self.unitId = None
             self.styleId = None
         else:
-            parse_symbol_id = re.match(r"^(.+?)_(\d{1,2})_(\d{1,2})$", symbol_id) # Fix parsing of symbol IDs with multiple underscores and numbers
+            parse_symbol_id = re.match(
+                r"^(.+?)_(\d{1,2})_(\d{1,2})$", symbol_id
+            )  # Fix parsing of symbol IDs with multiple underscores and numbers
             if parse_symbol_id:
                 # The symbol is a child symbol
                 self.libraryNickname = None
@@ -293,7 +316,7 @@ class Symbol():
     libraryNickname: Optional[str] = None
     """The optional ``libraryNickname`` token defines which symbol library this symbol belongs to
     and is a part of the ``id`` token"""
-    
+
     entryName: str = None
     """The ``entryName`` token defines the actual name of the symbol and is a part of the ``id`` 
     token"""
@@ -335,13 +358,15 @@ class Symbol():
     circuit board. If undefined, the token will not be generated in `self.to_sexpr()`."""
 
     # TODO: Describe this token
-    isPower: bool = False           # Missing in documentation, added when "Als Spannungssymbol" is checked
+    isPower: bool = (
+        False  # Missing in documentation, added when "Als Spannungssymbol" is checked
+    )
     """The ``isPower`` token's documentation was not done yet .."""
-    
+
     excludeFromSim: Optional[bool] = None
     """The optional ``exclude_from_sim`` token defines if the symbol should be excluded from simulation.
     If undefined, the token will not be generated in `self.to_sexpr()`."""
-    
+
     embeddedFonts: Optional[bool] = None
     """The optional ``embedded_fonts`` token defines if fonts are embedded.
     If undefined, the token will not be generated in `self.to_sexpr()`."""
@@ -372,10 +397,10 @@ class Symbol():
             bool: True if hide is enabled, False otherwise
         """
         for prop in properties:
-            if isinstance(prop, list) and prop[0] == 'hide':
+            if isinstance(prop, list) and prop[0] == "hide":
                 # v9 format: (hide yes) or (hide no)
-                return prop[1] == 'yes' if len(prop) > 1 else True
-            elif prop == 'hide':
+                return prop[1] == "yes" if len(prop) > 1 else True
+            elif prop == "hide":
                 # v7 format: hide
                 return True
         return False
@@ -397,44 +422,69 @@ class Symbol():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'symbol':
+        if exp[0] != "symbol":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.libId = exp[1]
         for item in exp[2:]:
-            if item[0] == 'extends': object.extends = item[1]
-            if item[0] == 'pin_numbers': object.hidePinNumbers = cls._parse_hide_property(item[1:])
-            if item[0] == 'pin_names': 
+            if item[0] == "extends":
+                object.extends = item[1]
+            if item[0] == "pin_numbers":
+                object.hidePinNumbers = cls._parse_hide_property(item[1:])
+            if item[0] == "pin_names":
                 object.pinNames = True
                 object.pinNamesHide = cls._parse_hide_property(item[1:])
                 # Handle other pin_names properties
                 for property in item[1:]:
-                    if isinstance(property, list) and property[0] == 'offset':
+                    if isinstance(property, list) and property[0] == "offset":
                         object.pinNamesOffset = property[1]
-            if item[0] == 'in_bom': object.inBom = True if item[1] == 'yes' else False
-            if item[0] == 'on_board': object.onBoard = True if item[1] == 'yes' else False
-            if item[0] == 'power': object.isPower = True
-            if item[0] == 'exclude_from_sim': object.excludeFromSim = item[1] == 'yes'  # Note: "no" means False, "yes" means True
-            if item[0] == 'embedded_fonts': object.embeddedFonts = item[1] == 'yes'
+            if item[0] == "in_bom":
+                object.inBom = True if item[1] == "yes" else False
+            if item[0] == "on_board":
+                object.onBoard = True if item[1] == "yes" else False
+            if item[0] == "power":
+                object.isPower = True
+            if item[0] == "exclude_from_sim":
+                object.excludeFromSim = (
+                    item[1] == "yes"
+                )  # Note: "no" means False, "yes" means True
+            if item[0] == "embedded_fonts":
+                object.embeddedFonts = item[1] == "yes"
 
-            if item[0] == 'symbol': object.units.append(Symbol().from_sexpr(item))
-            if item[0] == 'property': object.properties.append(Property().from_sexpr(item))
+            if item[0] == "symbol":
+                object.units.append(Symbol().from_sexpr(item))
+            if item[0] == "property":
+                object.properties.append(Property().from_sexpr(item))
 
-            if item[0] == 'pin': object.pins.append(SymbolPin().from_sexpr(item))
-            if item[0] == 'arc': object.graphicItems.append(SyArc().from_sexpr(item))
-            if item[0] == 'circle': object.graphicItems.append(SyCircle().from_sexpr(item))
-            if item[0] == 'curve': object.graphicItems.append(SyCurve().from_sexpr(item))
-            if item[0] == 'polyline': object.graphicItems.append(SyPolyLine().from_sexpr(item))
-            if item[0] == 'rectangle': object.graphicItems.append(SyRect().from_sexpr(item))
-            if item[0] == 'text': object.graphicItems.append(SyText().from_sexpr(item))
-            if item[0] == 'text_box': object.graphicItems.append(SyTextBox().from_sexpr(item))
+            if item[0] == "pin":
+                object.pins.append(SymbolPin().from_sexpr(item))
+            if item[0] == "arc":
+                object.graphicItems.append(SyArc().from_sexpr(item))
+            if item[0] == "circle":
+                object.graphicItems.append(SyCircle().from_sexpr(item))
+            if item[0] == "curve":
+                object.graphicItems.append(SyCurve().from_sexpr(item))
+            if item[0] == "polyline":
+                object.graphicItems.append(SyPolyLine().from_sexpr(item))
+            if item[0] == "rectangle":
+                object.graphicItems.append(SyRect().from_sexpr(item))
+            if item[0] == "text":
+                object.graphicItems.append(SyText().from_sexpr(item))
+            if item[0] == "text_box":
+                object.graphicItems.append(SyTextBox().from_sexpr(item))
 
         return object
 
     @classmethod
-    def create_new(cls, id: str, reference: str, value: str,
-                        footprint: str = "", datasheet: str = "") -> Symbol:
+    def create_new(
+        cls,
+        id: str,
+        reference: str,
+        value: str,
+        footprint: str = "",
+        datasheet: str = "",
+    ) -> Symbol:
         """Creates a new empty symbol as KiCad would create it
 
         Args:
@@ -453,14 +503,30 @@ class Symbol():
         symbol.libId = id
         symbol.properties.extend(
             [
-                Property(key = "Reference", value = reference, id = 0,
-                         effects = Effects(font=Font(width=1.27, height=1.27))),
-                Property(key = "Value", value = value, id = 1,
-                         effects = Effects(font=Font(width=1.27, height=1.27))),
-                Property(key = "Footprint", value = footprint, id = 2,
-                         effects = Effects(font=Font(width=1.27, height=1.27), hide=True)),
-                Property(key = "Datasheet", value = datasheet, id = 3,
-                         effects = Effects(font=Font(width=1.27, height=1.27), hide=True))
+                Property(
+                    key="Reference",
+                    value=reference,
+                    id=0,
+                    effects=Effects(font=Font(width=1.27, height=1.27)),
+                ),
+                Property(
+                    key="Value",
+                    value=value,
+                    id=1,
+                    effects=Effects(font=Font(width=1.27, height=1.27)),
+                ),
+                Property(
+                    key="Footprint",
+                    value=footprint,
+                    id=2,
+                    effects=Effects(font=Font(width=1.27, height=1.27), hide=True),
+                ),
+                Property(
+                    key="Datasheet",
+                    value=datasheet,
+                    id=3,
+                    effects=Effects(font=Font(width=1.27, height=1.27), hide=True),
+                ),
             ]
         )
         return symbol
@@ -475,45 +541,61 @@ class Symbol():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        obtext, ibtext = '', ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        obtext, ibtext = "", ""
 
         if self.inBom is not None:
-            ibtext = 'yes' if self.inBom else 'no'
-        inbom = f' (in_bom {ibtext})' if self.inBom is not None else ''
+            ibtext = "yes" if self.inBom else "no"
+        inbom = f" (in_bom {ibtext})" if self.inBom is not None else ""
         if self.onBoard is not None:
-            obtext = 'yes' if self.onBoard else 'no'
-        onboard = f' (on_board {obtext})' if self.onBoard is not None else ''
-        power = f' (power)' if self.isPower else ''
-        exclude_sim = f' (exclude_from_sim {"no" if self.excludeFromSim == False else "yes"})' if self.excludeFromSim is not None else ''
-        embeddedFonts = f' (embedded_fonts {"no" if self.embeddedFonts == False else "yes"})' if self.embeddedFonts is not None else ''
-        pnhide = f' hide' if self.pinNamesHide else ''
-        pnoffset = f' (offset {self.pinNamesOffset})' if self.pinNamesOffset is not None else ''
-        pinnames = f' (pin_names{pnoffset}{pnhide})' if self.pinNames else ''
-        pinnumbers = f' (pin_numbers hide)' if self.hidePinNumbers else ''
-        extends = f' (extends "{dequote(self.extends)}")' if self.extends is not None else ''
+            obtext = "yes" if self.onBoard else "no"
+        onboard = f" (on_board {obtext})" if self.onBoard is not None else ""
+        power = f" (power)" if self.isPower else ""
+        exclude_sim = (
+            f' (exclude_from_sim {"no" if self.excludeFromSim == False else "yes"})'
+            if self.excludeFromSim is not None
+            else ""
+        )
+        embeddedFonts = (
+            f' (embedded_fonts {"no" if self.embeddedFonts == False else "yes"})'
+            if self.embeddedFonts is not None
+            else ""
+        )
+        pnhide = f" hide" if self.pinNamesHide else ""
+        pnoffset = (
+            f" (offset {self.pinNamesOffset})"
+            if self.pinNamesOffset is not None
+            else ""
+        )
+        pinnames = f" (pin_names{pnoffset}{pnhide})" if self.pinNames else ""
+        pinnumbers = f" (pin_numbers hide)" if self.hidePinNumbers else ""
+        extends = (
+            f' (extends "{dequote(self.extends)}")' if self.extends is not None else ""
+        )
 
-        expression =  f'{indents}(symbol "{dequote(self.libId)}"{extends}{power}{exclude_sim}{pinnumbers}{pinnames}{inbom}{onboard}{embeddedFonts}\n'
+        expression = f'{indents}(symbol "{dequote(self.libId)}"{extends}{power}{exclude_sim}{pinnumbers}{pinnames}{inbom}{onboard}{embeddedFonts}\n'
         for item in self.properties:
-            expression += item.to_sexpr(indent+2)
+            expression += item.to_sexpr(indent + 2)
         for item in self.graphicItems:
-            expression += item.to_sexpr(indent+2)
+            expression += item.to_sexpr(indent + 2)
         for item in self.pins:
-            expression += item.to_sexpr(indent+2)
+            expression += item.to_sexpr(indent + 2)
         for item in self.units:
-            expression += item.to_sexpr(indent+2)
-        expression += f'{indents}){endline}'
+            expression += item.to_sexpr(indent + 2)
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class SymbolLib():
+class SymbolLib:
     """A symbol library defines the common format of ``.kicad_sym`` files. A symbol library may contain
     zero or more symbols.
 
     Documentation:
         https://dev-docs.kicad.org/en/file-formats/sexpr-symbol-lib/
     """
+
     version: str = KIUTILS_CREATE_NEW_VERSION_STR
     """The ``version`` token attribute defines the symbol library version using the YYYYMMDD date format"""
 
@@ -546,7 +628,7 @@ class SymbolLib():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             item = cls.from_sexpr(sexpr.parse_sexp(infile.read()))
             item.filePath = filepath
             return item
@@ -568,18 +650,21 @@ class SymbolLib():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'kicad_symbol_lib':
+        if exp[0] != "kicad_symbol_lib":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
 
         for item in exp[1:]:
-            if item[0] == 'version': object.version = str(item[1])
-            if item[0] == 'generator': object.generator = item[1]
-            if item[0] == 'symbol': object.symbols.append(Symbol().from_sexpr(item))
+            if item[0] == "version":
+                object.version = str(item[1])
+            if item[0] == "generator":
+                object.generator = item[1]
+            if item[0] == "symbol":
+                object.symbols.append(Symbol().from_sexpr(item))
         return object
 
-    def to_file(self, filepath = None, encoding: Optional[str] = None):
+    def to_file(self, filepath=None, encoding: Optional[str] = None):
         """Save the object to a file in S-Expression format
 
         Args:
@@ -596,7 +681,7 @@ class SymbolLib():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w', encoding=encoding) as outfile:
+        with open(filepath, "w", encoding=encoding) as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent: int = 0, newline: bool = True) -> str:
@@ -609,11 +694,11 @@ class SymbolLib():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression =  f'{indents}(kicad_symbol_lib (version {self.version}) (generator {self.generator})\n'
+        expression = f"{indents}(kicad_symbol_lib (version {self.version}) (generator {self.generator})\n"
         for item in self.symbols:
-            expression += f'{indents}{item.to_sexpr(indent+2)}'
-        expression += f'{indents}){endline}'
+            expression += f"{indents}{item.to_sexpr(indent+2)}"
+        expression += f"{indents}){endline}"
         return expression

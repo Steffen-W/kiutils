@@ -19,19 +19,20 @@ import calendar
 import datetime
 import re
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict
 from os import path
+from typing import Dict, List, Optional
 
-from kiutils.items.zones import Zone
-from kiutils.items.common import Image, Position, Coordinate, Net, Group, Font
+from kiutils.items.common import Coordinate, Font, Group, Image, Net, Position
 from kiutils.items.fpitems import *
 from kiutils.items.gritems import *
+from kiutils.items.zones import Zone
+from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
 from kiutils.utils import sexpr
 from kiutils.utils.strings import dequote, remove_prefix
-from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
+
 
 @dataclass
-class Attributes():
+class Attributes:
     """The ``attr`` token defines the list of attributes of a footprint.
 
     Documentation:
@@ -77,21 +78,25 @@ class Attributes():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'attr':
+        if exp[0] != "attr":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         if len(exp) > 1:
             # Attributes token may be set with no other items (empty attributes)
             # Test case for this: test_fp_empty_attr.kicad_mod
-            if exp[1] == 'through_hole' or exp[1] == 'smd':
+            if exp[1] == "through_hole" or exp[1] == "smd":
                 object.type = exp[1]
 
         for item in exp:
-            if item == 'board_only': object.boardOnly = True
-            if item == 'exclude_from_pos_files': object.excludeFromPosFiles = True
-            if item == 'exclude_from_bom': object.excludeFromBom = True
-            if item == 'allow_missing_courtyard': object.allowMissingCourtyard = True
+            if item == "board_only":
+                object.boardOnly = True
+            if item == "exclude_from_pos_files":
+                object.excludeFromPosFiles = True
+            if item == "exclude_from_bom":
+                object.excludeFromBom = True
+            if item == "allow_missing_courtyard":
+                object.allowMissingCourtyard = True
         return object
 
     def to_sexpr(self, indent=0, newline=False) -> str:
@@ -112,27 +117,34 @@ class Attributes():
         Returns:
             - str: S-Expression of this object
         """
-        if (self.type == None
+        if (
+            self.type == None
             and self.boardOnly == False
             and self.excludeFromBom == False
             and self.excludeFromPosFiles == False
-            and self.allowMissingCourtyard == False):
-            return ''
+            and self.allowMissingCourtyard == False
+        ):
+            return ""
 
-        indents = ' '*indent
-        endline = '\n' if newline else ''
-        type = f' {self.type}' if self.type is not None else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
+        type = f" {self.type}" if self.type is not None else ""
 
-        expression = f'{indents}(attr{type}'
-        if self.boardOnly: expression += ' board_only'
-        if self.excludeFromPosFiles: expression += ' exclude_from_pos_files'
-        if self.excludeFromBom: expression += ' exclude_from_bom'
-        if self.allowMissingCourtyard: expression += ' allow_missing_courtyard'
-        expression += f'){endline}'
+        expression = f"{indents}(attr{type}"
+        if self.boardOnly:
+            expression += " board_only"
+        if self.excludeFromPosFiles:
+            expression += " exclude_from_pos_files"
+        if self.excludeFromBom:
+            expression += " exclude_from_bom"
+        if self.allowMissingCourtyard:
+            expression += " allow_missing_courtyard"
+        expression += f"){endline}"
         return expression
 
+
 @dataclass
-class Model():
+class Model:
     """The ``model`` token defines the 3D model associated with a footprint.
 
     Documentation:
@@ -153,7 +165,7 @@ class Model():
 
     hide: bool = False
     """The `hide` token specifies if the 3d model is visible or not"""
-    
+
     opacity: Optional[float] = None
     """The optional opacity token specifies the opacity of the 3D model on a scale between 1.0 and 0.0."""
 
@@ -174,23 +186,23 @@ class Model():
         if not isinstance(exp, list) or len(exp) < 5:
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'model':
+        if exp[0] != "model":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.path = exp[1]
 
-        if exp[2] == 'hide':
+        if exp[2] == "hide":
             object.hide = True
 
         for e in exp[2:]:
-            if e[0] == 'opacity':
+            if e[0] == "opacity":
                 object.opacity = e[1]
-            elif e[0] == 'offset':
+            elif e[0] == "offset":
                 object.pos = Coordinate.from_sexpr(e[1])
-            elif e[0] == 'scale':
+            elif e[0] == "scale":
                 object.scale = Coordinate.from_sexpr(e[1])
-            elif e[0] == 'rotate':
+            elif e[0] == "rotate":
                 object.rotate = Coordinate.from_sexpr(e[1])
         return object
 
@@ -204,21 +216,22 @@ class Model():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         hide = " hide" if self.hide else ""
 
-        expression =  f'{indents}(model "{dequote(self.path)}"{hide}\n'
+        expression = f'{indents}(model "{dequote(self.path)}"{hide}\n'
         if self.opacity is not None:
-            expression += f'{indents}  (opacity {self.opacity})\n'
-        expression += f'{indents}  (offset {self.pos.to_sexpr()})\n'
-        expression += f'{indents}  (scale {self.scale.to_sexpr()})\n'
-        expression += f'{indents}  (rotate {self.rotate.to_sexpr()})\n'
-        expression += f'{indents}){endline}'
+            expression += f"{indents}  (opacity {self.opacity})\n"
+        expression += f"{indents}  (offset {self.pos.to_sexpr()})\n"
+        expression += f"{indents}  (scale {self.scale.to_sexpr()})\n"
+        expression += f"{indents}  (rotate {self.rotate.to_sexpr()})\n"
+        expression += f"{indents}){endline}"
         return expression
 
+
 @dataclass
-class DrillDefinition():
+class DrillDefinition:
     """The ``drill`` token defines the drill attributes for a footprint pad.
 
     Documentation:
@@ -254,12 +267,12 @@ class DrillDefinition():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'drill':
+        if exp[0] != "drill":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         # Depending on the ``oval`` token, the fields may be shifted ..
-        if exp[1] == 'oval':
+        if exp[1] == "oval":
             object.oval = True
             object.diameter = exp[2]
             object.width = exp[3]
@@ -270,8 +283,10 @@ class DrillDefinition():
 
         # The ``offset`` token may not be given
         for item in exp:
-            if type(item) != type([]): continue
-            if item[0] == 'offset': object.offset = Position().from_sexpr(item)
+            if type(item) != type([]):
+                continue
+            if item[0] == "offset":
+                object.offset = Position().from_sexpr(item)
         return object
 
     def to_sexpr(self, indent: int = 0, newline: bool = False) -> str:
@@ -284,23 +299,29 @@ class DrillDefinition():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        oval = f' oval' if self.oval else ''
-        width = f' {self.width}' if self.oval and self.width is not None else ''
-        offset = f' (offset {self.offset.X} {self.offset.Y})' if self.offset is not None else ''
+        oval = f" oval" if self.oval else ""
+        width = f" {self.width}" if self.oval and self.width is not None else ""
+        offset = (
+            f" (offset {self.offset.X} {self.offset.Y})"
+            if self.offset is not None
+            else ""
+        )
 
-        return f'{indents}(drill{oval} {self.diameter}{width}{offset}){endline}'
+        return f"{indents}(drill{oval} {self.diameter}{width}{offset}){endline}"
+
 
 @dataclass
-class PadOptions():
+class PadOptions:
     """The ``options`` token attributes define the settings used for custom pads. This token is
     only used when a custom pad is defined.
 
     Documentation:
         https://dev-docs.kicad.org/en/file-formats/sexpr-intro/index.html#_custom_pad_options
     """
+
     clearance: str = "outline"
     """The ``clearance`` token defines the type of clearance used for a custom pad. Valid clearance
     types are ``outline`` and ``convexhull``."""
@@ -326,13 +347,15 @@ class PadOptions():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'options':
+        if exp[0] != "options":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'clearance': object.clearance = item[1]
-            if item[0] == 'anchor': object.anchor = item[1]
+            if item[0] == "clearance":
+                object.clearance = item[1]
+            if item[0] == "anchor":
+                object.anchor = item[1]
         return object
 
     def to_sexpr(self, indent: int = 0, newline: bool = False) -> str:
@@ -345,13 +368,14 @@ class PadOptions():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        return f'{indents}(options (clearance {self.clearance}) (anchor {self.anchor})){endline}'
+        return f"{indents}(options (clearance {self.clearance}) (anchor {self.anchor})){endline}"
+
 
 @dataclass
-class Pad():
+class Pad:
     """The ``pad`` token defines a pad in a footprint definition.
 
     Documentation:
@@ -374,7 +398,9 @@ class Pad():
     locked: bool = False
     """The optional ``locked`` token defines if the footprint pad can be edited"""
 
-    size: Position = field(default_factory=lambda: Position())         # Size uses Position class for simplicity for now
+    size: Position = field(
+        default_factory=lambda: Position()
+    )  # Size uses Position class for simplicity for now
     """The ``size`` token defines the width and height of the pad"""
 
     drill: Optional[DrillDefinition] = None
@@ -402,7 +428,7 @@ class Pad():
     for rounded rectangular and chamfered corner rectangular pads. The scaling factor is a
     number between 0 and 1."""
 
-    chamferRatio: Optional[float] = None   # Adds a newline before
+    chamferRatio: Optional[float] = None  # Adds a newline before
     """The optional ``chamferRatio`` token defines the scaling factor of the pad to chamfer size.
     The scaling factor is a number between 0 and 1."""
 
@@ -415,7 +441,7 @@ class Pad():
     """The optional ``net`` token defines the integer number and name string of the net connection
     for the pad."""
 
-    tstamp: Optional[str] = None           # Used since KiCad 6
+    tstamp: Optional[str] = None  # Used since KiCad 6
     """The optional ``tstamp`` token defines the unique identifier of the pad object"""
 
     pinFunction: Optional[str] = None
@@ -424,7 +450,7 @@ class Pad():
     pinType: Optional[str] = None
     """The optional ``pinType`` token attribute defines the associated schematic pin electrical type"""
 
-    dieLength: Optional[float] = None      # Adds a newline before
+    dieLength: Optional[float] = None  # Adds a newline before
     """The optional ``dieLength`` token attribute defines the die length between the component pad
     and physical chip inside the component package"""
 
@@ -494,7 +520,7 @@ class Pad():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'pad':
+        if exp[0] != "pad":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
@@ -504,48 +530,95 @@ class Pad():
 
         for item in exp[3:]:
             if type(item) != type([]):
-                if item == 'locked': object.locked = True
+                if item == "locked":
+                    object.locked = True
 
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'size': object.size = Position().from_sexpr(item)
-            if item[0] == 'drill': object.drill = DrillDefinition().from_sexpr(item)
-            if item[0] == 'layers':
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "size":
+                object.size = Position().from_sexpr(item)
+            if item[0] == "drill":
+                object.drill = DrillDefinition().from_sexpr(item)
+            if item[0] == "layers":
                 for layer in item[1:]:
                     object.layers.append(layer)
-            if item[0] == 'property': object.property = item[1]
-            if item[0] == 'remove_unused_layers': object.removeUnusedLayers = True
-            if item[0] == 'keep_end_layers': object.keepEndLayers = True
-            if item[0] == 'roundrect_rratio': object.roundrectRatio = item[1]
-            if item[0] == 'chamfer_ratio': object.chamferRatio = item[1]
-            if item[0] == 'chamfer':
+            if item[0] == "property":
+                object.property = item[1]
+            if item[0] == "remove_unused_layers":
+                object.removeUnusedLayers = True
+            if item[0] == "keep_end_layers":
+                object.keepEndLayers = True
+            if item[0] == "roundrect_rratio":
+                object.roundrectRatio = item[1]
+            if item[0] == "chamfer_ratio":
+                object.chamferRatio = item[1]
+            if item[0] == "chamfer":
                 for chamfer in item[1:]:
                     object.chamfer.append(chamfer)
-            if item[0] == 'net': object.net = Net().from_sexpr(item)
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'pinfunction': object.pinFunction = item[1]
-            if item[0] == 'pintype': object.pinType = item[1]
-            if item[0] == 'die_length': object.dieLength = item[1]
-            if item[0] == 'solder_mask_margin': object.solderMaskMargin = item[1]
-            if item[0] == 'solder_paste_margin': object.solderPasteMargin = item[1]
-            if item[0] == 'solder_paste_margin_ratio': object.solderPasteMarginRatio = item[1]
-            if item[0] == 'clearance': object.clearance = item[1]
-            if item[0] == 'zone_connect': object.zoneConnect = item[1]
-            if item[0] == 'thermal_width': object.thermalWidth = item[1]
-            if item[0] == 'thermal_gap': object.thermalGap = item[1]
-            if item[0] == 'options': object.customPadOptions = PadOptions().from_sexpr(item)
-            if item[0] == 'primitives':
+            if item[0] == "net":
+                object.net = Net().from_sexpr(item)
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "pinfunction":
+                object.pinFunction = item[1]
+            if item[0] == "pintype":
+                object.pinType = item[1]
+            if item[0] == "die_length":
+                object.dieLength = item[1]
+            if item[0] == "solder_mask_margin":
+                object.solderMaskMargin = item[1]
+            if item[0] == "solder_paste_margin":
+                object.solderPasteMargin = item[1]
+            if item[0] == "solder_paste_margin_ratio":
+                object.solderPasteMarginRatio = item[1]
+            if item[0] == "clearance":
+                object.clearance = item[1]
+            if item[0] == "zone_connect":
+                object.zoneConnect = item[1]
+            if item[0] == "thermal_width":
+                object.thermalWidth = item[1]
+            if item[0] == "thermal_gap":
+                object.thermalGap = item[1]
+            if item[0] == "options":
+                object.customPadOptions = PadOptions().from_sexpr(item)
+            if item[0] == "primitives":
                 for primitive in item[1:]:
-                    if primitive[0] == 'gr_text': object.customPadPrimitives.append(GrText().from_sexpr(primitive))
-                    if primitive[0] == 'gr_text_box': object.customPadPrimitives.append(GrTextBox().from_sexpr(primitive))
-                    if primitive[0] == 'gr_line': object.customPadPrimitives.append(GrLine().from_sexpr(primitive))
-                    if primitive[0] == 'gr_rect': object.customPadPrimitives.append(GrRect().from_sexpr(primitive))
-                    if primitive[0] == 'gr_circle': object.customPadPrimitives.append(GrCircle().from_sexpr(primitive))
-                    if primitive[0] == 'gr_arc': object.customPadPrimitives.append(GrArc().from_sexpr(primitive))
-                    if primitive[0] == 'gr_poly': object.customPadPrimitives.append(GrPoly().from_sexpr(primitive))
-                    if primitive[0] == 'gr_curve': object.customPadPrimitives.append(GrCurve().from_sexpr(primitive))
+                    if primitive[0] == "gr_text":
+                        object.customPadPrimitives.append(
+                            GrText().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_text_box":
+                        object.customPadPrimitives.append(
+                            GrTextBox().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_line":
+                        object.customPadPrimitives.append(
+                            GrLine().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_rect":
+                        object.customPadPrimitives.append(
+                            GrRect().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_circle":
+                        object.customPadPrimitives.append(
+                            GrCircle().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_arc":
+                        object.customPadPrimitives.append(GrArc().from_sexpr(primitive))
+                    if primitive[0] == "gr_poly":
+                        object.customPadPrimitives.append(
+                            GrPoly().from_sexpr(primitive)
+                        )
+                    if primitive[0] == "gr_curve":
+                        object.customPadPrimitives.append(
+                            GrCurve().from_sexpr(primitive)
+                        )
 
                     # XXX: Are dimentions even implemented here?
-                    if primitive[0] == 'dimension': raise NotImplementedError("Dimensions are not yet handled! Please report this bug along with the file being parsed.")
+                    if primitive[0] == "dimension":
+                        raise NotImplementedError(
+                            "Dimensions are not yet handled! Please report this bug along with the file being parsed."
+                        )
         return object
 
     def to_sexpr(self, indent: int = 2, newline: bool = True) -> str:
@@ -558,110 +631,121 @@ class Pad():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
         champferFound, marginFound, schematicSymbolAssociated = False, False, False
-        c, cr, smm, spm, spmr, cl, zc, tw, tg = '', '', '', '', '', '', '', '', ''
+        c, cr, smm, spm, spmr, cl, zc, tw, tg = "", "", "", "", "", "", "", "", ""
 
-        layers = ' (layers'
+        layers = " (layers"
         for layer in self.layers:
             # For some reason KiCad does not escape a layer with double-quotes if it has a
             # wildcard (*) or an ampersant (&) in it
             if "*." in layer or "&" in layer:
-                layers += f' {layer}'
+                layers += f" {layer}"
             else:
                 layers += f' "{dequote(layer)}"'
 
-        layers += ')'
+        layers += ")"
 
-        locked = ' locked' if self.locked else ''
-        drill = f' {self.drill.to_sexpr()}' if self.drill is not None else ''
-        ppty = f' (property {self.property})' if self.property is not None else ''
-        rul = ' (remove_unused_layers)' if self.removeUnusedLayers else ''
-        kel = ' (keep_end_layers)' if self.keepEndLayers else ''
-        rrr = f' (roundrect_rratio {self.roundrectRatio})' if self.roundrectRatio is not None else ''
+        locked = " locked" if self.locked else ""
+        drill = f" {self.drill.to_sexpr()}" if self.drill is not None else ""
+        ppty = f" (property {self.property})" if self.property is not None else ""
+        rul = " (remove_unused_layers)" if self.removeUnusedLayers else ""
+        kel = " (keep_end_layers)" if self.keepEndLayers else ""
+        rrr = (
+            f" (roundrect_rratio {self.roundrectRatio})"
+            if self.roundrectRatio is not None
+            else ""
+        )
 
-        net = f' {self.net.to_sexpr()}' if self.net is not None else ''
-        pf = f' (pinfunction "{dequote(self.pinFunction)}")' if self.pinFunction is not None else ''
-        pt = f' (pintype "{dequote(self.pinType)}")' if self.pinType is not None else ''
+        net = f" {self.net.to_sexpr()}" if self.net is not None else ""
+        pf = (
+            f' (pinfunction "{dequote(self.pinFunction)}")'
+            if self.pinFunction is not None
+            else ""
+        )
+        pt = f' (pintype "{dequote(self.pinType)}")' if self.pinType is not None else ""
 
         # Check if a schematic symbol is associated with this footprint. This is usually set, if the
         # footprint is used in a board file.
-        if net != '' or pf != '' or pt != '':
+        if net != "" or pf != "" or pt != "":
             schematicSymbolAssociated = True
 
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
         if len(self.chamfer) > 0:
             champferFound = True
-            c = ' (chamfer'
+            c = " (chamfer"
             for chamfer in self.chamfer:
-                c += f' {chamfer}'
-            c += ')'
+                c += f" {chamfer}"
+            c += ")"
         if self.chamferRatio is not None:
             champferFound = True
-            cr = f' (chamfer_ratio {self.chamferRatio})'
+            cr = f" (chamfer_ratio {self.chamferRatio})"
 
         if self.position.angle is not None:
-            position = f'(at {self.position.X} {self.position.Y} {self.position.angle})'
+            position = f"(at {self.position.X} {self.position.Y} {self.position.angle})"
         else:
-            position = f'(at {self.position.X} {self.position.Y})'
+            position = f"(at {self.position.X} {self.position.Y})"
 
         if self.solderMaskMargin is not None:
             marginFound = True
-            smm = f' (solder_mask_margin {self.solderMaskMargin})'
+            smm = f" (solder_mask_margin {self.solderMaskMargin})"
 
         if self.solderPasteMargin is not None:
             marginFound = True
-            spm = f' (solder_paste_margin {self.solderPasteMargin})'
+            spm = f" (solder_paste_margin {self.solderPasteMargin})"
 
         if self.solderPasteMarginRatio is not None:
             marginFound = True
-            spmr = f' (solder_paste_margin_ratio {self.solderPasteMarginRatio})'
+            spmr = f" (solder_paste_margin_ratio {self.solderPasteMarginRatio})"
 
         if self.clearance is not None:
             marginFound = True
-            cl = f' (clearance {self.clearance})'
+            cl = f" (clearance {self.clearance})"
 
         if self.zoneConnect is not None:
             marginFound = True
-            zc = f' (zone_connect {self.zoneConnect})'
+            zc = f" (zone_connect {self.zoneConnect})"
 
         if self.thermalWidth is not None:
             marginFound = True
-            tw = f' (thermal_width {self.thermalWidth})'
+            tw = f" (thermal_width {self.thermalWidth})"
 
         if self.thermalGap is not None:
             marginFound = True
-            tg = f' (thermal_gap {self.thermalGap})'
+            tg = f" (thermal_gap {self.thermalGap})"
 
-        expression =  f'{indents}(pad "{dequote(str(self.number))}" {self.type} {self.shape}{locked} {position} (size {self.size.X} {self.size.Y}){drill}{ppty}{layers}{rul}{kel}{rrr}'
+        expression = f'{indents}(pad "{dequote(str(self.number))}" {self.type} {self.shape}{locked} {position} (size {self.size.X} {self.size.Y}){drill}{ppty}{layers}{rul}{kel}{rrr}'
         if champferFound:
             # Only one whitespace here as all temporary strings have at least one leading whitespace
-            expression += f'\n{indents} {cr}{c}'
+            expression += f"\n{indents} {cr}{c}"
 
         if self.dieLength is not None:
-            expression += f'\n{indents}  (die_length {self.dieLength})'
+            expression += f"\n{indents}  (die_length {self.dieLength})"
 
         if marginFound or schematicSymbolAssociated:
             # Only one whitespace here as all temporary strings have at least one leading whitespace
-            expression += f'\n{indents} {net}{pf}{pt}{smm}{spm}{spmr}{cl}{zc}{tw}{tg}'
+            expression += f"\n{indents} {net}{pf}{pt}{smm}{spm}{spmr}{cl}{zc}{tw}{tg}"
 
         if self.customPadOptions is not None:
-            expression += f'\n{indents}  {self.customPadOptions.to_sexpr()}'
+            expression += f"\n{indents}  {self.customPadOptions.to_sexpr()}"
 
         if self.customPadPrimitives is not None:
             if len(self.customPadPrimitives) > 0:
-                expression += f'\n{indents}  (primitives'
+                expression += f"\n{indents}  (primitives"
                 for primitive in self.customPadPrimitives:
-                    expression += f'\n{primitive.to_sexpr(newline=False,indent=indent+4)}'
-                expression += f'\n{indents}  )'
+                    expression += (
+                        f"\n{primitive.to_sexpr(newline=False,indent=indent+4)}"
+                    )
+                expression += f"\n{indents}  )"
 
-        expression += f'{tstamp}){endline}'
+        expression += f"{tstamp}){endline}"
         return expression
 
+
 @dataclass
-class Footprint():
+class Footprint:
     """The ``footprint`` token defines a footprint.
 
     Documentation:
@@ -671,7 +755,7 @@ class Footprint():
     @property
     def libId(self) -> str:
         """The ``lib_id`` token defines the link to footprint library of the footprint.
-        This only applies to footprints defined in the board file format, in a regular footprint 
+        This only applies to footprints defined in the board file format, in a regular footprint
         file this id defines the footprint's name. In ``kiutils``, the token is a combination of
         both the ``libraryNickname`` and ``entryName`` token. Setting the ``lib_id`` token will
         update those tokens accordingly.
@@ -681,9 +765,9 @@ class Footprint():
               if ``libraryNickname`` token is not set.
         """
         if self.libraryNickname:
-            return f'{self.libraryNickname}:{self.entryName}'
+            return f"{self.libraryNickname}:{self.entryName}"
         else:
-            return f'{self.entryName}'
+            return f"{self.entryName}"
 
     @libId.setter
     def libId(self, symbol_id: str):
@@ -706,7 +790,7 @@ class Footprint():
     libraryNickname: Optional[str] = None
     """The optional ``libraryNickname`` token defines which symbol library this symbol belongs to
     and is a part of the ``id`` token"""
-    
+
     entryName: str = None
     """The ``entryName`` token defines the actual name of the symbol and is a part of the ``id`` 
     token"""
@@ -726,7 +810,9 @@ class Footprint():
     layer: str = "F.Cu"
     """The ``layer`` token defines the canonical layer the footprint is placed"""
 
-    tedit: str = remove_prefix(hex(calendar.timegm(datetime.datetime.now().utctimetuple())), '0x')
+    tedit: str = remove_prefix(
+        hex(calendar.timegm(datetime.datetime.now().utctimetuple())), "0x"
+    )
     """The ``tedit`` token defines a the last time the footprint was edited"""
 
     tstamp: Optional[str] = None
@@ -854,58 +940,95 @@ class Footprint():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'module' and exp[0] != 'footprint':
+        if exp[0] != "module" and exp[0] != "footprint":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.libId = exp[1]
         for item in exp[2:]:
             if not isinstance(item, list):
-                if item == 'locked': object.locked = True
-                if item == 'placed': object.placed = True
+                if item == "locked":
+                    object.locked = True
+                if item == "placed":
+                    object.placed = True
                 continue
 
-            if item[0] == 'version': object.version = item[1]
-            if item[0] == 'generator': object.generator = item[1]
-            if item[0] == 'layer': object.layer = item[1]
-            if item[0] == 'tedit': object.tedit = item[1]
-            if item[0] == 'tstamp': object.tstamp = item[1]
-            if item[0] == 'descr': object.description = item[1]
-            if item[0] == 'tags': object.tags = item[1]
-            if item[0] == 'path': object.path = item[1]
-            if item[0] == 'at': object.position = Position().from_sexpr(item)
-            if item[0] == 'autoplace_cost90': object.autoplaceCost90 = item[1]
-            if item[0] == 'autoplace_cost180': object.autoplaceCost180 = item[1]
-            if item[0] == 'solder_mask_margin': object.solderMaskMargin = item[1]
-            if item[0] == 'solder_paste_margin': object.solderPasteMargin = item[1]
-            if item[0] == 'solder_paste_ratio': object.solderPasteRatio = item[1]
-            if item[0] == 'clearance': object.clearance = item[1]
-            if item[0] == 'zone_connect': object.zoneConnect = item[1]
-            if item[0] == 'thermal_width': object.thermalWidth = item[1]
-            if item[0] == 'thermal_gap': object.thermalGap = item[1]
-            if item[0] == 'attr': object.attributes = Attributes.from_sexpr(item)
-            if item[0] == 'model': object.models.append(Model.from_sexpr(item))
-            if item[0] == 'fp_text': object.graphicItems.append(FpText.from_sexpr(item))
-            if item[0] == 'fp_text_box': object.graphicItems.append(FpTextBox.from_sexpr(item))
-            if item[0] == 'fp_line': object.graphicItems.append(FpLine.from_sexpr(item))
-            if item[0] == 'fp_rect': object.graphicItems.append(FpRect.from_sexpr(item))
-            if item[0] == 'fp_circle': object.graphicItems.append(FpCircle.from_sexpr(item))
-            if item[0] == 'fp_arc': object.graphicItems.append(FpArc.from_sexpr(item))
-            if item[0] == 'fp_poly': object.graphicItems.append(FpPoly.from_sexpr(item))
-            if item[0] == 'fp_curve': object.graphicItems.append(FpCurve.from_sexpr(item))
-            if item[0] == 'image':object.graphicItems.append(Image.from_sexpr(item))
-            if item[0] == 'pad': object.pads.append(Pad.from_sexpr(item))
-            if item[0] == 'zone': object.zones.append(Zone.from_sexpr(item))
-            if item[0] == 'property': object.properties.update({ item[1]: item[2] })
-            if item[0] == 'group': object.groups.append(Group.from_sexpr(item))
-            if item[0] == 'private_layers':
+            if item[0] == "version":
+                object.version = item[1]
+            if item[0] == "generator":
+                object.generator = item[1]
+            if item[0] == "layer":
+                object.layer = item[1]
+            if item[0] == "tedit":
+                object.tedit = item[1]
+            if item[0] == "tstamp":
+                object.tstamp = item[1]
+            if item[0] == "descr":
+                object.description = item[1]
+            if item[0] == "tags":
+                object.tags = item[1]
+            if item[0] == "path":
+                object.path = item[1]
+            if item[0] == "at":
+                object.position = Position().from_sexpr(item)
+            if item[0] == "autoplace_cost90":
+                object.autoplaceCost90 = item[1]
+            if item[0] == "autoplace_cost180":
+                object.autoplaceCost180 = item[1]
+            if item[0] == "solder_mask_margin":
+                object.solderMaskMargin = item[1]
+            if item[0] == "solder_paste_margin":
+                object.solderPasteMargin = item[1]
+            if item[0] == "solder_paste_ratio":
+                object.solderPasteRatio = item[1]
+            if item[0] == "clearance":
+                object.clearance = item[1]
+            if item[0] == "zone_connect":
+                object.zoneConnect = item[1]
+            if item[0] == "thermal_width":
+                object.thermalWidth = item[1]
+            if item[0] == "thermal_gap":
+                object.thermalGap = item[1]
+            if item[0] == "attr":
+                object.attributes = Attributes.from_sexpr(item)
+            if item[0] == "model":
+                object.models.append(Model.from_sexpr(item))
+            if item[0] == "fp_text":
+                object.graphicItems.append(FpText.from_sexpr(item))
+            if item[0] == "fp_text_box":
+                object.graphicItems.append(FpTextBox.from_sexpr(item))
+            if item[0] == "fp_line":
+                object.graphicItems.append(FpLine.from_sexpr(item))
+            if item[0] == "fp_rect":
+                object.graphicItems.append(FpRect.from_sexpr(item))
+            if item[0] == "fp_circle":
+                object.graphicItems.append(FpCircle.from_sexpr(item))
+            if item[0] == "fp_arc":
+                object.graphicItems.append(FpArc.from_sexpr(item))
+            if item[0] == "fp_poly":
+                object.graphicItems.append(FpPoly.from_sexpr(item))
+            if item[0] == "fp_curve":
+                object.graphicItems.append(FpCurve.from_sexpr(item))
+            if item[0] == "image":
+                object.graphicItems.append(Image.from_sexpr(item))
+            if item[0] == "pad":
+                object.pads.append(Pad.from_sexpr(item))
+            if item[0] == "zone":
+                object.zones.append(Zone.from_sexpr(item))
+            if item[0] == "property":
+                object.properties.update({item[1]: item[2]})
+            if item[0] == "group":
+                object.groups.append(Group.from_sexpr(item))
+            if item[0] == "private_layers":
                 for layer in item[1:]:
                     object.privateLayers.append(layer)
-            if item[0] == 'net_tie_pad_groups':
+            if item[0] == "net_tie_pad_groups":
                 for layer in item[1:]:
                     object.netTiePadGroups.append(layer)
-            if item[0] == 'dimension':
-                raise NotImplementedError("Dimensions are not yet handled! Please report this bug along with the file being parsed.")
+            if item[0] == "dimension":
+                raise NotImplementedError(
+                    "Dimensions are not yet handled! Please report this bug along with the file being parsed."
+                )
 
         return object
 
@@ -916,7 +1039,7 @@ class Footprint():
 
         Args:
             - filepath (str): Path or path-like object that points to the file
-            - encoding (str, optional): Encoding of the input file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the input file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -928,15 +1051,16 @@ class Footprint():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             rawFootprint = infile.read()
 
             fpData = sexpr.parse_sexp(rawFootprint)
             return cls.from_sexpr(fpData)
 
     @classmethod
-    def create_new(cls, library_id: str, value: str,
-                        type: str = 'other', reference: str = 'REF**') -> Footprint:
+    def create_new(
+        cls, library_id: str, value: str, type: str = "other", reference: str = "REF**"
+    ) -> Footprint:
         """Creates a new empty footprint with its attributes set as KiCad would create it
 
         Args:
@@ -950,49 +1074,52 @@ class Footprint():
         Returns:
             - Footprint: Empty footprint
         """
-        if type not in ['smd', 'through_hole', 'other']:
+        if type not in ["smd", "through_hole", "other"]:
             raise Exception("Unsupported type was given")
 
-        fp = cls(
-            version = KIUTILS_CREATE_NEW_VERSION_STR,
-            generator = 'kiutils'
-        )
+        fp = cls(version=KIUTILS_CREATE_NEW_VERSION_STR, generator="kiutils")
         fp.libId = library_id
 
         # Create text items that are created when adding a new footprint to a library
         fp.graphicItems.extend(
             [
                 FpText(
-                    type = 'reference', text = reference, layer = 'F.SilkS',
-                    effects = Effects(font=Font(thickness=0.15)),
-                    position = Position(X=0, Y=-0.5, unlocked=True)
+                    type="reference",
+                    text=reference,
+                    layer="F.SilkS",
+                    effects=Effects(font=Font(thickness=0.15)),
+                    position=Position(X=0, Y=-0.5, unlocked=True),
                 ),
                 FpText(
-                    type = 'value', text = value, layer ='F.Fab',
-                    effects  = Effects(font=Font(thickness=0.15)),
-                    position = Position(X=0, Y=1, unlocked=True)
+                    type="value",
+                    text=value,
+                    layer="F.Fab",
+                    effects=Effects(font=Font(thickness=0.15)),
+                    position=Position(X=0, Y=1, unlocked=True),
                 ),
                 FpText(
-                    type = 'user', text = '${REFERENCE}', layer = 'F.Fab',
-                    effects = Effects(font=Font(thickness=0.15)),
-                    position = Position(X=0, Y=2.5, unlocked=True)
-                )
+                    type="user",
+                    text="${REFERENCE}",
+                    layer="F.Fab",
+                    effects=Effects(font=Font(thickness=0.15)),
+                    position=Position(X=0, Y=2.5, unlocked=True),
+                ),
             ]
         )
 
         # The type ``other`` does not set the attributes type token
-        if type != 'other':
+        if type != "other":
             fp.attributes.type = type
 
         return fp
 
-    def to_file(self, filepath = None, encoding: Optional[str] = None):
+    def to_file(self, filepath=None, encoding: Optional[str] = None):
         """Save the object to a file in S-Expression format
 
         Args:
-            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set, 
+            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set,
                                         the attribute ``self.filePath`` will be used instead.
-            - encoding (str, optional): Encoding of the output file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the output file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -1003,7 +1130,7 @@ class Footprint():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w', encoding=encoding) as outfile:
+        with open(filepath, "w", encoding=encoding) as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent=0, newline=True, layerInFirstLine=False) -> str:
@@ -1017,25 +1144,29 @@ class Footprint():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        locked = ' locked' if self.locked else ''
-        placed = ' placed' if self.placed else ''
-        version = f' (version {self.version})' if self.version is not None else ''
-        generator = f' (generator {self.generator})' if self.generator is not None else ''
-        tstamp = f' (tstamp {self.tstamp})' if self.tstamp is not None else ''
+        locked = " locked" if self.locked else ""
+        placed = " placed" if self.placed else ""
+        version = f" (version {self.version})" if self.version is not None else ""
+        generator = (
+            f" (generator {self.generator})" if self.generator is not None else ""
+        )
+        tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
-        expression =  f'{indents}(footprint "{dequote(self.libId)}"{locked}{placed}{version}{generator}'
+        expression = f'{indents}(footprint "{dequote(self.libId)}"{locked}{placed}{version}{generator}'
         if layerInFirstLine:
             expression += f' (layer "{dequote(self.layer)}")\n'
         else:
             expression += f'\n{indents}  (layer "{dequote(self.layer)}")\n'
-        expression += f'{indents}  (tedit {self.tedit}){tstamp}\n'
+        expression += f"{indents}  (tedit {self.tedit}){tstamp}\n"
 
         if self.position is not None:
-            angle = f' {self.position.angle}' if self.position.angle is not None else ''
-            expression += f'{indents}  (at {self.position.X} {self.position.Y}{angle})\n'
+            angle = f" {self.position.angle}" if self.position.angle is not None else ""
+            expression += (
+                f"{indents}  (at {self.position.X} {self.position.Y}{angle})\n"
+            )
         if self.description is not None:
             expression += f'{indents}  (descr "{dequote(self.description)}")\n'
         if self.tags is not None:
@@ -1047,52 +1178,51 @@ class Footprint():
 
         # Additional parameters used in board
         if self.autoplaceCost90 is not None:
-            expression += f'{indents}  (autoplace_cost90 {self.autoplaceCost90})\n'
+            expression += f"{indents}  (autoplace_cost90 {self.autoplaceCost90})\n"
         if self.autoplaceCost180 is not None:
-            expression += f'{indents}  (autoplace_cost180 {self.autoplaceCost180})\n'
+            expression += f"{indents}  (autoplace_cost180 {self.autoplaceCost180})\n"
         if self.solderMaskMargin is not None:
-            expression += f'{indents}  (solder_mask_margin {self.solderMaskMargin})\n'
+            expression += f"{indents}  (solder_mask_margin {self.solderMaskMargin})\n"
         if self.solderPasteMargin is not None:
-            expression += f'{indents}  (solder_paste_margin {self.solderPasteMargin})\n'
+            expression += f"{indents}  (solder_paste_margin {self.solderPasteMargin})\n"
         if self.solderPasteRatio is not None:
-            expression += f'{indents}  (solder_paste_ratio {self.solderPasteRatio})\n'
+            expression += f"{indents}  (solder_paste_ratio {self.solderPasteRatio})\n"
         if self.clearance is not None:
-            expression += f'{indents}  (clearance {self.clearance})\n'
+            expression += f"{indents}  (clearance {self.clearance})\n"
         if self.zoneConnect is not None:
-            expression += f'{indents}  (zone_connect {self.zoneConnect})\n'
+            expression += f"{indents}  (zone_connect {self.zoneConnect})\n"
         if self.thermalWidth is not None:
-            expression += f'{indents}  (thermal_width {self.thermalWidth})\n'
+            expression += f"{indents}  (thermal_width {self.thermalWidth})\n"
         if self.thermalGap is not None:
-            expression += f'{indents}  (thermal_gap {self.thermalGap})\n'
+            expression += f"{indents}  (thermal_gap {self.thermalGap})\n"
 
         if self.attributes is not None:
             # Note: If the attribute object has only standard values in it, it will return an
             #       empty string. Therefore, it should create its own newline and indentations only
             #       when needed.
-            expression += self.attributes.to_sexpr(indent=indent+2, newline=True)
+            expression += self.attributes.to_sexpr(indent=indent + 2, newline=True)
         if self.privateLayers:
-            expression += f'{indents}  (private_layers'
+            expression += f"{indents}  (private_layers"
             for item in self.privateLayers:
                 expression += f' "{dequote(item)}"'
-            expression += f')\n'
-            
+            expression += f")\n"
+
         if self.netTiePadGroups:
-            expression += f'{indents}  (net_tie_pad_groups'
+            expression += f"{indents}  (net_tie_pad_groups"
             for item in self.netTiePadGroups:
                 expression += f' "{dequote(item)}"'
-            expression += f')\n'
+            expression += f")\n"
 
         for item in self.graphicItems:
-            expression += item.to_sexpr(indent=indent+2)
+            expression += item.to_sexpr(indent=indent + 2)
         for item in self.pads:
-            expression += item.to_sexpr(indent=indent+2)
+            expression += item.to_sexpr(indent=indent + 2)
         for item in self.zones:
-            expression += item.to_sexpr(indent=indent+2)
+            expression += item.to_sexpr(indent=indent + 2)
         for item in self.models:
-            expression += item.to_sexpr(indent=indent+2)
+            expression += item.to_sexpr(indent=indent + 2)
         for item in self.groups:
-            expression += item.to_sexpr(indent=indent+2)
+            expression += item.to_sexpr(indent=indent + 2)
 
-        expression += f'{indents}){endline}'
+        expression += f"{indents}){endline}"
         return expression
-

@@ -13,14 +13,15 @@ Major changes:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional, List
 from os import path
+from typing import List, Optional
 
-from kiutils.utils.strings import dequote
 from kiutils.utils import sexpr
+from kiutils.utils.strings import dequote
+
 
 @dataclass
-class Library():
+class Library:
     """The ``library`` token defines either a symbol library or a footprint library in
     a library table file (``fp_lib_table`` or ``sym_lib_table``)"""
 
@@ -59,17 +60,23 @@ class Library():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if exp[0] != 'lib':
+        if exp[0] != "lib":
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         for item in exp:
-            if item[0] == 'name': object.name = item[1]
-            if item[0] == 'type': object.type = item[1]
-            if item[0] == 'uri': object.uri = item[1]
-            if item[0] == 'options': object.options = item[1]
-            if item[0] == 'descr': object.description = item[1]
-            if item[0] == 'disabled': object.active = False
+            if item[0] == "name":
+                object.name = item[1]
+            if item[0] == "type":
+                object.type = item[1]
+            if item[0] == "uri":
+                object.uri = item[1]
+            if item[0] == "options":
+                object.options = item[1]
+            if item[0] == "descr":
+                object.description = item[1]
+            if item[0] == "disabled":
+                object.active = False
         return object
 
     def to_sexpr(self, indent=2, newline=True) -> str:
@@ -82,10 +89,10 @@ class Library():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression = f'{indents}(lib '
+        expression = f"{indents}(lib "
         expression += f'(name "{dequote(self.name)}")'
         expression += f'(type "{dequote(self.type)}")'
         expression += f'(uri "{dequote(self.uri)}")'
@@ -93,17 +100,18 @@ class Library():
         expression += f'(descr "{dequote(self.description)}")'
 
         if not self.active:
-            expression += '(disabled)'
+            expression += "(disabled)"
 
-        expression += f'){endline}'
+        expression += f"){endline}"
 
         return expression
 
+
 @dataclass
-class LibTable():
+class LibTable:
     """The ``libtable`` token defines the ``fp_lib_table`` or ``sym_lib_table`` file of KiCad"""
 
-    type: str = 'sym_lib_table'
+    type: str = "sym_lib_table"
     """The ``type`` token defines the type of the library table. Valid values are ``fp_lib_table`` or
     ``sym_lib_table``."""
 
@@ -131,13 +139,14 @@ class LibTable():
         if not isinstance(exp, list):
             raise Exception("Expression does not have the correct type")
 
-        if not (exp[0] == 'fp_lib_table' or exp[0] == 'sym_lib_table'):
+        if not (exp[0] == "fp_lib_table" or exp[0] == "sym_lib_table"):
             raise Exception("Expression does not have the correct type")
 
         object = cls()
         object.type = exp[0]
         for item in exp:
-            if item[0] == 'lib': object.libs.append(Library().from_sexpr(item))
+            if item[0] == "lib":
+                object.libs.append(Library().from_sexpr(item))
         return object
 
     @classmethod
@@ -147,7 +156,7 @@ class LibTable():
 
         Args:
             - filepath (str): Path or path-like object that points to the file
-            - encoding (str, optional): Encoding of the input file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the input file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -159,13 +168,13 @@ class LibTable():
         if not path.isfile(filepath):
             raise Exception("Given path is not a file!")
 
-        with open(filepath, 'r', encoding=encoding) as infile:
+        with open(filepath, "r", encoding=encoding) as infile:
             item = cls.from_sexpr(sexpr.parse_sexp(infile.read()))
             item.filePath = filepath
             return item
 
     @classmethod
-    def create_new(cls, type: str = 'sym_lib_table') -> LibTable:
+    def create_new(cls, type: str = "sym_lib_table") -> LibTable:
         """Creates a new empty library table with its attributes set as KiCad would create it
 
         Args:
@@ -176,13 +185,13 @@ class LibTable():
         """
         return cls(type=type)
 
-    def to_file(self, filepath = None, encoding: Optional[str] = None):
+    def to_file(self, filepath=None, encoding: Optional[str] = None):
         """Save the object to a file in S-Expression format
 
         Args:
-            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set, 
+            - filepath (str, optional): Path-like string to the file. Defaults to None. If not set,
                                         the attribute ``self.filePath`` will be used instead.
-            - encoding (str, optional): Encoding of the output file. Defaults to None (platform 
+            - encoding (str, optional): Encoding of the output file. Defaults to None (platform
                                         dependent encoding).
 
         Raises:
@@ -193,7 +202,7 @@ class LibTable():
                 raise Exception("File path not set")
             filepath = self.filePath
 
-        with open(filepath, 'w', encoding=encoding) as outfile:
+        with open(filepath, "w", encoding=encoding) as outfile:
             outfile.write(self.to_sexpr())
 
     def to_sexpr(self, indent=0, newline=True) -> str:
@@ -206,11 +215,11 @@ class LibTable():
         Returns:
             - str: S-Expression of this object
         """
-        indents = ' '*indent
-        endline = '\n' if newline else ''
+        indents = " " * indent
+        endline = "\n" if newline else ""
 
-        expression = f'{indents}({self.type}\n'
+        expression = f"{indents}({self.type}\n"
         for lib in self.libs:
             expression += lib.to_sexpr()
-        expression += f'{indents}){endline}'
+        expression += f"{indents}){endline}"
         return expression

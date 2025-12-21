@@ -122,7 +122,7 @@ class GrText:
             f' (layer "{dequote(self.layer)}"{ko})' if self.layer is not None else ""
         )
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         expression = f'{indents}(gr_text{locked} "{dequote(self.text)}" (at {self.position.X} {self.position.Y}{posA}){layer}{tstamp}\n'
         expression += f"{indents}  {self.effects.to_sexpr()}"
@@ -377,7 +377,7 @@ class GrLine:
         """
         indents = " " * indent
         endline = "\n" if newline else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
@@ -467,7 +467,7 @@ class GrRect:
         """
         indents = " " * indent
         endline = "\n" if newline else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
@@ -558,7 +558,7 @@ class GrCircle:
         """
         indents = " " * indent
         endline = "\n" if newline else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
@@ -649,7 +649,7 @@ class GrArc:
         """
         indents = " " * indent
         endline = "\n" if newline else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
@@ -748,7 +748,7 @@ class GrPoly:
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
         fill = f" (fill {self.fill})" if self.fill is not None else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         if pts_newline:
             expression = f"{indents}(gr_poly{locked}\n"
@@ -843,7 +843,7 @@ class GrCurve:
 
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         layer = f' (layer "{dequote(self.layer)}")' if self.layer is not None else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         expression = f"{indents}(gr_curve{locked} (pts\n"
         for point in self.coordinates:

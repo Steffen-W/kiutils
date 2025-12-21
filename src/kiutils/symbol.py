@@ -551,7 +551,7 @@ class Symbol:
         if self.onBoard is not None:
             obtext = "yes" if self.onBoard else "no"
         onboard = f" (on_board {obtext})" if self.onBoard is not None else ""
-        power = f" (power)" if self.isPower else ""
+        power = " (power)" if self.isPower else ""
         exclude_sim = (
             f' (exclude_from_sim {"no" if self.excludeFromSim == False else "yes"})'
             if self.excludeFromSim is not None
@@ -562,14 +562,14 @@ class Symbol:
             if self.embeddedFonts is not None
             else ""
         )
-        pnhide = f" hide" if self.pinNamesHide else ""
+        pnhide = " hide" if self.pinNamesHide else ""
         pnoffset = (
             f" (offset {self.pinNamesOffset})"
             if self.pinNamesOffset is not None
             else ""
         )
         pinnames = f" (pin_names{pnoffset}{pnhide})" if self.pinNames else ""
-        pinnumbers = f" (pin_numbers hide)" if self.hidePinNumbers else ""
+        pinnumbers = " (pin_numbers hide)" if self.hidePinNumbers else ""
         extends = (
             f' (extends "{dequote(self.extends)}")' if self.extends is not None else ""
         )

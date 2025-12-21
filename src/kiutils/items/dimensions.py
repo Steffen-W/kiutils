@@ -128,7 +128,7 @@ class DimensionFormat:
             if self.overrideValue is not None
             else ""
         )
-        suppress_zeroes = f" suppress_zeroes" if self.suppressZeroes else ""
+        suppress_zeroes = " suppress_zeroes" if self.suppressZeroes else ""
 
         expression = f"{indents}(format{prefix}{suffix} (units {self.units}) (units_format {self.unitsFormat}) (precision {self.precision}){overwrite_val}{suppress_zeroes}){endline}"
         return expression
@@ -242,7 +242,7 @@ class DimensionStyle:
             if self.extensionOffset is not None
             else ""
         )
-        keep_aligned = f" keep_text_aligned" if self.keepTextAligned else ""
+        keep_aligned = " keep_text_aligned" if self.keepTextAligned else ""
 
         expression = f"{indents}(style (thickness {self.thickness}) (arrow_length {self.arrowLength}) (text_position_mode {self.textPositionMode}){extension_height}{text_frame}{extension_offset}{keep_aligned}){endline}"
         return expression

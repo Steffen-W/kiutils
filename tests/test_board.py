@@ -14,7 +14,6 @@ from kiutils.board import Board
 from kiutils.footprint import Attributes
 from tests.testfunctions import (
     TEST_BASE,
-    cleanup_after_test,
     prepare_test,
     to_file_and_compare,
 )

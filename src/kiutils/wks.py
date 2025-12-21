@@ -144,8 +144,8 @@ class WksFont:
 
         lw = f" (linewidth {self.linewidth})" if self.linewidth is not None else ""
         size = f" {self.size.to_sexpr()}" if self.size is not None else ""
-        bold = f" bold" if self.bold else ""
-        italic = f" italic" if self.italic else ""
+        bold = " bold" if self.bold else ""
+        italic = " italic" if self.italic else ""
 
         if lw == "" and size == "" and bold == "" and italic == "":
             return ""

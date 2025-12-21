@@ -461,7 +461,7 @@ class Justify:
         if self.vertically is not None:
             vertically = f" {self.vertically}"
         if self.mirror:
-            mirror = f" mirror"
+            mirror = " mirror"
 
         expression = f"{indents}(justify{horizontally}{vertically}{mirror}){endline}"
         return expression
@@ -541,7 +541,7 @@ class Effects:
         endline = "\n" if newline else ""
 
         justify = f" {self.justify.to_sexpr()}" if self.justify.to_sexpr() != "" else ""
-        hide = f" hide" if self.hide else ""
+        hide = " hide" if self.hide else ""
         href = f' (href "{dequote(self.href)}")' if self.href is not None else ""
 
         expression = (
@@ -667,7 +667,7 @@ class Group:
         """
         indents = " " * indent
         endline = "\n" if newline else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         expression = f'{indents}(group "{dequote(self.name)}"{locked} (id {self.id})\n'
         expression += f"{indents}  (members\n"
@@ -1004,7 +1004,7 @@ class RenderCachePolygon:
 
         for i, point in enumerate(self.pts):
             if i % 4 == 0:
-                expression += f"\n"
+                expression += "\n"
             expression += f"{indents}    "
             expression += f"(xy {point.X} {point.Y})"
 

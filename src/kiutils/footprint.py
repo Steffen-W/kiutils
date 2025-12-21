@@ -302,7 +302,7 @@ class DrillDefinition:
         indents = " " * indent
         endline = "\n" if newline else ""
 
-        oval = f" oval" if self.oval else ""
+        oval = " oval" if self.oval else ""
         width = f" {self.width}" if self.oval and self.width is not None else ""
         offset = (
             f" (offset {self.offset.X} {self.offset.Y})"
@@ -1205,13 +1205,13 @@ class Footprint:
             expression += f"{indents}  (private_layers"
             for item in self.privateLayers:
                 expression += f' "{dequote(item)}"'
-            expression += f")\n"
+            expression += ")\n"
 
         if self.netTiePadGroups:
             expression += f"{indents}  (net_tie_pad_groups"
             for item in self.netTiePadGroups:
                 expression += f' "{dequote(item)}"'
-            expression += f")\n"
+            expression += ")\n"
 
         for item in self.graphicItems:
             expression += item.to_sexpr(indent=indent + 2)

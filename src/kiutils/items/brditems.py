@@ -1070,14 +1070,14 @@ class Via:
         endline = "\n" if newline else ""
 
         type = f" {self.type}" if self.type is not None else ""
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
 
         layers = ""
         for layer in self.layers:
             layers += f' "{dequote(layer)}"'
-        rum = f" (remove_unused_layers)" if self.removeUnusedLayers else ""
-        kel = f" (keep_end_layers)" if self.keepEndLayers else ""
-        free = f" (free)" if self.free else ""
+        rum = " (remove_unused_layers)" if self.removeUnusedLayers else ""
+        kel = " (keep_end_layers)" if self.keepEndLayers else ""
+        free = " (free)" if self.free else ""
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
         return f"{indents}(via{type}{locked} (at {self.position.X} {self.position.Y}) (size {self.size}) (drill {self.drill}) (layers{layers}){rum}{kel}{free} (net {self.net}){tstamp}){endline}"
@@ -1172,7 +1172,7 @@ class Arc:
         indents = " " * indent
         endline = "\n" if newline else ""
 
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
 
         expression = f"{indents}(arc{locked} (start {self.start.X} {self.start.Y}) "

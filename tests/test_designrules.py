@@ -13,7 +13,6 @@ from os import path
 from kiutils.dru import DesignRules
 from tests.testfunctions import (
     TEST_BASE,
-    cleanup_after_test,
     prepare_test,
     to_file_and_compare,
 )

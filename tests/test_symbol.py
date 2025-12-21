@@ -15,7 +15,6 @@ from kiutils.symbol import Symbol, SymbolLib
 from kiutils.utils.sexpr import parse_sexp
 from tests.testfunctions import (
     TEST_BASE,
-    cleanup_after_test,
     prepare_test,
     to_file_and_compare,
 )

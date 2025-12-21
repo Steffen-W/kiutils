@@ -1195,7 +1195,7 @@ class SchematicSymbol:
         endline = "\n" if newline else ""
 
         posA = f" {self.position.angle}" if self.position.angle is not None else ""
-        fa = f" (fields_autoplaced)" if self.fieldsAutoplaced else ""
+        fa = " (fields_autoplaced)" if self.fieldsAutoplaced else ""
         inBom = "yes" if self.inBom else "no"
         onBoard = "yes" if self.onBoard else "no"
         mirror = f" (mirror {self.mirror})" if self.mirror is not None else ""
@@ -2043,7 +2043,7 @@ class NetclassFlag:
         endline = "\n" if newline else ""
 
         posA = f" {self.position.angle}" if self.position.angle is not None else ""
-        fa = f" (fields_autoplaced)" if self.fieldsAutoplaced else ""
+        fa = " (fields_autoplaced)" if self.fieldsAutoplaced else ""
 
         expression = f'{indents}(netclass_flag "{dequote(self.text)}" (length {self.length}) (shape {self.shape}) (at {self.position.X} {self.position.Y}{posA}){fa}\n'
         expression += self.effects.to_sexpr(indent + 2)

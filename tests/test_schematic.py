@@ -11,11 +11,9 @@ import unittest
 from os import path
 
 from kiutils.items.common import Property
-from kiutils.items.schitems import HierarchicalSheetInstance
 from kiutils.schematic import Schematic
 from tests.testfunctions import (
     TEST_BASE,
-    cleanup_after_test,
     prepare_test,
     to_file_and_compare,
 )

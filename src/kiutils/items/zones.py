@@ -704,7 +704,7 @@ class Zone:
         indents = " " * indent
         endline = "\n" if newline else ""
 
-        locked = f" locked" if self.locked else ""
+        locked = " locked" if self.locked else ""
         tstamp = f" (tstamp {self.tstamp})" if self.tstamp is not None else ""
         name = f' (name "{dequote(self.name)}")' if self.name is not None else ""
         contype = f" {self.connectPads}" if self.connectPads is not None else ""

@@ -22,9 +22,27 @@ from dataclasses import dataclass, field
 from os import path
 from typing import Dict, List, Optional
 
-from kiutils.items.common import Coordinate, Font, Group, Image, Net, Position
-from kiutils.items.fpitems import *
-from kiutils.items.gritems import *
+from kiutils.items.common import Coordinate, Effects, Font, Group, Image, Net, Position
+from kiutils.items.fpitems import (
+    FpArc,
+    FpCircle,
+    FpCurve,
+    FpLine,
+    FpPoly,
+    FpRect,
+    FpText,
+    FpTextBox,
+)
+from kiutils.items.gritems import (
+    GrArc,
+    GrCircle,
+    GrCurve,
+    GrLine,
+    GrPoly,
+    GrRect,
+    GrText,
+    GrTextBox,
+)
 from kiutils.items.zones import Zone
 from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
 from kiutils.utils import sexpr
@@ -118,11 +136,11 @@ class Attributes:
             - str: S-Expression of this object
         """
         if (
-            self.type == None
-            and self.boardOnly == False
-            and self.excludeFromBom == False
-            and self.excludeFromPosFiles == False
-            and self.allowMissingCourtyard == False
+            self.type is None
+            and not self.boardOnly
+            and not self.excludeFromBom
+            and not self.excludeFromPosFiles
+            and not self.allowMissingCourtyard
         ):
             return ""
 
@@ -283,7 +301,7 @@ class DrillDefinition:
 
         # The ``offset`` token may not be given
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
             if item[0] == "offset":
                 object.offset = Position().from_sexpr(item)
@@ -529,7 +547,7 @@ class Pad:
         object.shape = exp[3]
 
         for item in exp[3:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
 
@@ -736,7 +754,7 @@ class Pad:
                 expression += f"\n{indents}  (primitives"
                 for primitive in self.customPadPrimitives:
                     expression += (
-                        f"\n{primitive.to_sexpr(newline=False,indent=indent+4)}"
+                        f"\n{primitive.to_sexpr(newline=False, indent=indent + 4)}"
                     )
                 expression += f"\n{indents}  )"
 

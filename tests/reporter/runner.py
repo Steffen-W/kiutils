@@ -70,7 +70,6 @@ class HTMLTestRunner(TextTestRunner):
     def run(self, test):
         """Runs the given testcase or testsuite."""
         try:
-
             result = self._make_result()
             result.failfast = self.failfast
             if hasattr(test, "properties"):

@@ -20,10 +20,27 @@ from os import path
 from typing import Dict, List, Optional
 
 from kiutils.footprint import Footprint
-from kiutils.items.brditems import *
+from kiutils.items.brditems import (
+    Arc,
+    GeneralSettings,
+    LayerToken,
+    Segment,
+    SetupData,
+    Target,
+    Via,
+)
 from kiutils.items.common import Group, Image, Net, PageSettings, TitleBlock
 from kiutils.items.dimensions import Dimension
-from kiutils.items.gritems import *
+from kiutils.items.gritems import (
+    GrArc,
+    GrCircle,
+    GrCurve,
+    GrLine,
+    GrPoly,
+    GrRect,
+    GrText,
+    GrTextBox,
+)
 from kiutils.items.zones import Zone
 from kiutils.misc.config import (
     KIUTILS_CREATE_NEW_GENERATOR_STR,

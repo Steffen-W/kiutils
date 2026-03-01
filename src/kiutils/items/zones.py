@@ -74,7 +74,7 @@ class KeepoutSettings:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
 
             if item[0] == "tracks":
@@ -207,7 +207,7 @@ class FillSettings:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "yes":
                     object.yes = True
                 else:
@@ -344,7 +344,7 @@ class ZonePolygon:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
             if item[0] == "pts":
                 for position in item[1:]:
@@ -418,7 +418,7 @@ class FilledPolygon:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
 
             if item[0] == "layer":
@@ -498,7 +498,7 @@ class FillSegments:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
 
             if item[0] == "layer":
@@ -644,7 +644,7 @@ class Zone:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:

@@ -92,7 +92,7 @@ class Constraint:
         object = cls()
         object.type = exp[1]
         for item in exp[2:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 object.elements.append(item)
             if item[0] == "min":
                 object.min = item[1]
@@ -196,7 +196,7 @@ class Rule:
         if self.layer is not None:
             expression += f'{indents}  (layer "{dequote(self.layer)}")\n'
         for item in self.constraints:
-            expression += f"{indents}{item.to_sexpr(indent+2)}"
+            expression += f"{indents}{item.to_sexpr(indent + 2)}"
         expression += f'{indents}  (condition "{dequote(self.condition)}")'
         if self.severity is not None:
             expression += f"\n{indents}  (severity {dequote(self.severity)})"

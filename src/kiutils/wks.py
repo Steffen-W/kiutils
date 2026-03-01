@@ -116,7 +116,7 @@ class WksFont:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "bold":
                     object.bold = True
                 if item == "italic":

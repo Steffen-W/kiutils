@@ -266,7 +266,7 @@ class StackupLayer:
         object = cls()
         object.name = exp[1]
         for item in exp[2:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 # Start parsing the layer's sublayer if the first sublayer token was found
                 if item == "addsublayer":
                     if parsingSublayer:
@@ -343,7 +343,7 @@ class StackupLayer:
         expression = f'{indents}(layer "{dequote(self.name)}" (type "{self.type}"){color}{thickness}'
         expression += f"{material}{epsilon_r}{loss_tangent}"
         for layer in self.subLayers:
-            expression += f"\n{layer.to_sexpr(indent+2)}"
+            expression += f"\n{layer.to_sexpr(indent + 2)}"
         expression += f"){endline}"
         return expression
 
@@ -928,7 +928,7 @@ class Segment:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -1029,7 +1029,7 @@ class Via:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 if item == "micro" or item == "blind":
@@ -1139,7 +1139,7 @@ class Arc:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue

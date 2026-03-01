@@ -20,7 +20,27 @@ from os import path
 from typing import List, Optional, Union
 
 from kiutils.items.common import Image, PageSettings, TitleBlock
-from kiutils.items.schitems import *
+from kiutils.items.schitems import (
+    Arc,
+    BusAlias,
+    BusEntry,
+    Circle,
+    Connection,
+    GlobalLabel,
+    HierarchicalLabel,
+    HierarchicalSheet,
+    HierarchicalSheetInstance,
+    Junction,
+    LocalLabel,
+    NetclassFlag,
+    NoConnect,
+    PolyLine,
+    Rectangle,
+    SchematicSymbol,
+    SymbolInstance,
+    Text,
+    TextBox,
+)
 from kiutils.misc.config import (
     KIUTILS_CREATE_NEW_GENERATOR_STR,
     KIUTILS_CREATE_NEW_VERSION_STR,
@@ -277,9 +297,9 @@ class Schematic:
         expression = f"{indents}(kicad_sch (version {self.version}) (generator {self.generator})\n"
         if self.uuid is not None:
             expression += f"\n{indents}  (uuid {self.uuid})\n\n"
-        expression += f"{self.paper.to_sexpr(indent+2)}"
+        expression += f"{self.paper.to_sexpr(indent + 2)}"
         if self.titleBlock is not None:
-            expression += f"\n{self.titleBlock.to_sexpr(indent+2)}"
+            expression += f"\n{self.titleBlock.to_sexpr(indent + 2)}"
 
         if self.libSymbols:
             expression += f"\n{indents}  (lib_symbols"

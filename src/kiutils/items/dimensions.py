@@ -85,7 +85,7 @@ class DimensionFormat:
 
         object = cls()
         for item in exp[1:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "suppress_zeroes":
                     object.suppressZeroes = True
                 continue
@@ -198,7 +198,7 @@ class DimensionStyle:
 
         object = cls()
         for item in exp[1:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "keep_text_aligned":
                     object.keepTextAligned = True
                 continue
@@ -316,7 +316,7 @@ class Dimension:
 
         object = cls()
         for item in exp[1:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue

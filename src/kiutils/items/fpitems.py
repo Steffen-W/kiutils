@@ -92,7 +92,7 @@ class FpText:
         object.type = exp[1]
         object.text = exp[2]
         for item in exp[3:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "hide":
                     object.hide = True
                 continue
@@ -192,7 +192,7 @@ class FpLine:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:
@@ -293,7 +293,7 @@ class FpRect:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:
@@ -564,7 +564,7 @@ class FpCircle:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:
@@ -670,7 +670,7 @@ class FpArc:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:
@@ -774,7 +774,7 @@ class FpPoly:
         object = cls()
 
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:
@@ -880,7 +880,7 @@ class FpCurve:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 else:

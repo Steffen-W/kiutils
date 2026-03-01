@@ -17,7 +17,6 @@ The items are organized by file type:
 
 # Board-specific items (.kicad_pcb files)
 from .brditems import (
-    Arc,
     GeneralSettings,
     LayerToken,
     PlotSettings,

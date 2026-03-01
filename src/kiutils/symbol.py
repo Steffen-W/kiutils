@@ -20,7 +20,15 @@ from os import path
 from typing import List, Optional
 
 from kiutils.items.common import Effects, Font, Position, Property
-from kiutils.items.syitems import *
+from kiutils.items.syitems import (
+    SyArc,
+    SyCircle,
+    SyCurve,
+    SyPolyLine,
+    SyRect,
+    SyText,
+    SyTextBox,
+)
 from kiutils.misc.config import KIUTILS_CREATE_NEW_VERSION_STR
 from kiutils.utils import sexpr
 from kiutils.utils.strings import dequote
@@ -148,7 +156,7 @@ class SymbolPin:
         object.electricalType = exp[1]
         object.graphicalStyle = exp[2]
         for item in exp[3:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "hide":
                     object.hide = True
                 else:
@@ -553,12 +561,12 @@ class Symbol:
         onboard = f" (on_board {obtext})" if self.onBoard is not None else ""
         power = " (power)" if self.isPower else ""
         exclude_sim = (
-            f' (exclude_from_sim {"no" if self.excludeFromSim == False else "yes"})'
+            f" (exclude_from_sim {'no' if not self.excludeFromSim else 'yes'})"
             if self.excludeFromSim is not None
             else ""
         )
         embeddedFonts = (
-            f' (embedded_fonts {"no" if self.embeddedFonts == False else "yes"})'
+            f" (embedded_fonts {'no' if not self.embeddedFonts else 'yes'})"
             if self.embeddedFonts is not None
             else ""
         )
@@ -699,6 +707,6 @@ class SymbolLib:
 
         expression = f"{indents}(kicad_symbol_lib (version {self.version}) (generator {self.generator})\n"
         for item in self.symbols:
-            expression += f"{indents}{item.to_sexpr(indent+2)}"
+            expression += f"{indents}{item.to_sexpr(indent + 2)}"
         expression += f"{indents}){endline}"
         return expression

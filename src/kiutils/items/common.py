@@ -249,7 +249,7 @@ class Stroke:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 continue
             if item[0] == "width":
                 object.width = item[1]
@@ -334,7 +334,7 @@ class Font:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "bold":
                     object.bold = True
                 if item == "italic":
@@ -371,9 +371,9 @@ class Font:
             face_name = f'(face "{dequote(self.face)}") '
         if self.thickness is not None:
             thickness = f" (thickness {self.thickness})"
-        if self.bold == True:
+        if self.bold:
             bold = " bold"
-        if self.italic == True:
+        if self.italic:
             italic = " italic"
         if self.lineSpacing is not None:
             linespacing = f" (line_spacing {self.lineSpacing})"
@@ -447,11 +447,7 @@ class Justify:
         indents = " " * indent
         endline = "\n" if newline else ""
 
-        if (
-            self.horizontally is None
-            and self.vertically is None
-            and self.mirror == False
-        ):
+        if self.horizontally is None and self.vertically is None and not self.mirror:
             return f"{indents}{endline}"
 
         horizontally, vertically, mirror = "", "", ""
@@ -511,7 +507,7 @@ class Effects:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "hide":
                     object.hide = True
                 else:
@@ -644,7 +640,7 @@ class Group:
         object = cls()
         object.name = exp[1]
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -733,7 +729,7 @@ class PageSettings:
             object.width = exp[2]
             object.height = exp[3]
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "portrait":
                     object.portrait = True
                 continue
@@ -942,7 +938,7 @@ class Property:
 
         expression = f'{indents}(property "{dequote(self.key)}" "{dequote(self.value)}"{id} (at {self.position.X} {self.position.Y}{posA}){sn}'
         if self.effects is not None:
-            expression += f"\n{self.effects.to_sexpr(indent+2)}"
+            expression += f"\n{self.effects.to_sexpr(indent + 2)}"
             expression += f"{indents}){endline}"
         else:
             expression += f"){endline}"

@@ -84,7 +84,7 @@ class GrText:
         object = cls()
         object.text = exp[1]
         for item in exp[2:]:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -349,7 +349,7 @@ class GrLine:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -437,7 +437,7 @@ class GrRect:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -527,7 +527,7 @@ class GrCircle:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -618,7 +618,7 @@ class GrArc:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -706,7 +706,7 @@ class GrPoly:
         object = cls()
 
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue
@@ -809,7 +809,7 @@ class GrCurve:
 
         object = cls()
         for item in exp:
-            if type(item) != type([]):
+            if not isinstance(item, list):
                 if item == "locked":
                     object.locked = True
                 continue

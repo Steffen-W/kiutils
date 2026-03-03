@@ -159,21 +159,23 @@ class SymbolPin:
             if not isinstance(item, list):
                 if item == "hide":
                     object.hide = True
-                else:
-                    continue
-            if item[0] == "at":
+                continue
+            if item[0] == "hide":
+                # v9 format: (hide yes) or (hide no)
+                object.hide = len(item) < 2 or item[1] == "yes"
+            elif item[0] == "at":
                 object.position = Position().from_sexpr(item)
-            if item[0] == "length":
+            elif item[0] == "length":
                 object.length = item[1]
-            if item[0] == "name":
+            elif item[0] == "name":
                 object.name = item[1]
                 if len(item) > 2:
                     object.nameEffects = Effects().from_sexpr(item[2])
-            if item[0] == "number":
+            elif item[0] == "number":
                 object.number = item[1]
                 if len(item) > 2:
                     object.numberEffects = Effects().from_sexpr(item[2])
-            if item[0] == "alternate":
+            elif item[0] == "alternate":
                 object.alternatePins.append(SymbolAlternativePin().from_sexpr(item))
         return object
 
